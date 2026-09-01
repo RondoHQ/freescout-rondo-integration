@@ -9,15 +9,15 @@ use Modules\RondoIntegration\Services\UpdateBackupService;
 
 class IntegrationUpdateCommand extends Command
 {
-    protected $signature = 'rondo:integration-update {--version=} {--sha256=} {--check} {--install}';
+    protected $signature = 'rondo:integration-update {--release=} {--sha256=} {--check} {--install}';
     protected $description = 'Preflight or install one exact, checksum-approved Rondo Integration release';
 
     public function handle(UpdateBackupService $backups)
     {
-        $version = (string) $this->option('version');
+        $version = (string) $this->option('release');
         $expected = strtolower((string) $this->option('sha256'));
         if (!preg_match('/^v[0-9]+\.[0-9]+\.[0-9]+$/', $version) || !preg_match('/^[a-f0-9]{64}$/', $expected)) {
-            $this->error('Provide an exact --version=vX.Y.Z and --sha256=<64-hex>.');
+            $this->error('Provide an exact --release=vX.Y.Z and --sha256=<64-hex>.');
             return 2;
         }
         if ((bool) $this->option('check') === (bool) $this->option('install')) {
@@ -153,4 +153,3 @@ class IntegrationUpdateCommand extends Command
         \Artisan::call('freescout:clear-cache');
     }
 }
-
