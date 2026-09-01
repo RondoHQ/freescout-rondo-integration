@@ -1,10 +1,9 @@
-* @joostdevalk
-/Http/Controllers/OidcController.php @joostdevalk
-/Services/BindingService.php @joostdevalk
-/Services/OidcClient.php @joostdevalk
-/Services/UpdateBackupService.php @joostdevalk
-/Console/IntegrationUpdateCommand.php @joostdevalk
-/Database/Migrations/ @joostdevalk
-/module.json @joostdevalk
-/.github/workflows/ @joostdevalk
-
+* @jdevalk
+/Http/Controllers/OidcController.php @jdevalk
+/Services/BindingService.php @jdevalk
+/Services/OidcClient.php @jdevalk
+/Services/UpdateBackupService.php @jdevalk
+/Console/IntegrationUpdateCommand.php @jdevalk
+/Database/Migrations/ @jdevalk
+/module.json @jdevalk
+/.github/workflows/ @jdevalk
