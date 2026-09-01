@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.4] - 2026-09-01
+
+### Fixed
+
+- Use `--release` for the updater tag instead of Artisan's reserved global `--version` option.
+
 ## [1.0.3] - 2026-09-01
 
 ### Fixed
