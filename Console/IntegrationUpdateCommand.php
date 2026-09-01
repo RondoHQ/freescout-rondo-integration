@@ -43,6 +43,7 @@ class IntegrationUpdateCommand extends Command
             if (strpos($checksums, $actual . '  rondo-integration.zip') === false) {
                 throw new \RuntimeException('published_checksum_mismatch');
             }
+            $this->validateSbom($assets['sbom'], $manifest['version'], $actual);
             $this->validateArchive($assets['zip'], $manifest['version']);
             $this->info('Preflight passed for ' . $version . ' (' . $actual . ').');
             if ($this->option('check')) {
@@ -129,6 +130,33 @@ class IntegrationUpdateCommand extends Command
         if (!$manifestFound) {
             throw new \RuntimeException('archive_manifest_missing');
         }
+    }
+
+    private function validateSbom($path, $version, $expectedChecksum)
+    {
+        $sbom = json_decode(file_get_contents($path), true);
+        if (!is_array($sbom) || ($sbom['spdxVersion'] ?? null) !== 'SPDX-2.3'
+            || !isset($sbom['packages']) || !is_array($sbom['packages'])
+        ) {
+            throw new \RuntimeException('invalid_sbom');
+        }
+        foreach ($sbom['packages'] as $package) {
+            if (!is_array($package) || ($package['name'] ?? null) !== 'Rondo Integration'
+                || ($package['versionInfo'] ?? null) !== $version
+                || ($package['licenseDeclared'] ?? null) !== 'AGPL-3.0-only'
+                || !isset($package['checksums']) || !is_array($package['checksums'])
+            ) {
+                continue;
+            }
+            foreach ($package['checksums'] as $checksum) {
+                if (is_array($checksum) && ($checksum['algorithm'] ?? null) === 'SHA256'
+                    && hash_equals($expectedChecksum, strtolower((string) ($checksum['checksumValue'] ?? '')))
+                ) {
+                    return;
+                }
+            }
+        }
+        throw new \RuntimeException('sbom_mismatch');
     }
 
     private function installArchive($path)

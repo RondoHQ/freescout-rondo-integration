@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.5] - 2026-09-01
+
+### Fixed
+
+- Validate the published SPDX package version, declared license and ZIP checksum during updater preflight.
+
 ## [1.0.4] - 2026-09-01
 
 ### Fixed

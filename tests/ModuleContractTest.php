@@ -8,7 +8,7 @@ class ModuleContractTest extends TestCase
     {
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
-        $this->assertSame('1.0.4', $manifest['version']);
+        $this->assertSame('1.0.5', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -21,6 +21,15 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString('{--release=}', $command);
         $this->assertStringContainsString("option('release')", $command);
         $this->assertStringNotContainsString('{--version=}', $command);
+    }
+
+    public function testUpdaterValidatesThePublishedSbomAgainstTheApprovedZip()
+    {
+        $command = file_get_contents(dirname(__DIR__) . '/Console/IntegrationUpdateCommand.php');
+        $this->assertStringContainsString("validateSbom(\$assets['sbom'], \$manifest['version'], \$actual)", $command);
+        $this->assertStringContainsString("'spdxVersion'", $command);
+        $this->assertStringContainsString("'checksumValue'", $command);
+        $this->assertStringContainsString("'licenseDeclared'", $command);
     }
 
     public function testRoutesUseTheDedicatedRondoNamespaceAndProtectSidebarAjax()
