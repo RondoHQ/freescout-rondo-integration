@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.3] - 2026-09-01
+
+### Fixed
+
+- Normalize archive timestamps in UTC and verify byte-identical packages across different build timezones.
+
 ## [1.0.2] - 2026-09-01
 
 ### Fixed
