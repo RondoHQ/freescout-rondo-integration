@@ -46,6 +46,7 @@ jobs:
           composer test
           composer audit --locked
           php scripts/package.php
+          ! unzip -Z1 build/rondo-integration.zip | grep -E '(^|/)(tests|vendor|\.git|\.phpunit[^/]*)(/|$)'
           (cd build && sha256sum --check SHA256SUMS)
       - name: Attest release ZIP
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be

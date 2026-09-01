@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.0.0
+export RONDO_MODULE_VERSION=v1.0.1
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
