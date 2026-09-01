@@ -32,7 +32,7 @@ foreach ($iterator as $file) {
             break;
         }
     }
-    if ($skip || in_array($relative, ['composer.lock', 'phpunit.xml', '.gitignore'], true)) {
+    if ($skip || in_array($relative, ['composer.lock', 'phpunit.xml', '.phpunit.result.cache', '.gitignore'], true)) {
         continue;
     }
     $name = 'RondoIntegration/' . $relative;

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.1] - 2026-09-01
+
+### Fixed
+
+- Exclude PHPUnit cache metadata from release packages and enforce that boundary in CI and release checks.
+
 ## [1.0.0] - 2026-09-01
 
 ### Added
@@ -14,4 +20,3 @@ All notable changes to this project are documented here.
 - Configurable semantic accents and coordinated responsive conversation-sidebar width.
 - Fixed-version provisioning and checksum-gated targeted updater.
 - Protected CI, deterministic package, SBOM and release workflow.
-

@@ -2,7 +2,7 @@
 set -eu
 umask 077
 
-VERSION="${RONDO_MODULE_VERSION:-v1.0.0}"
+VERSION="${RONDO_MODULE_VERSION:-v1.0.1}"
 SHA256="${RONDO_MODULE_SHA256:?Set RONDO_MODULE_SHA256 to the approved 64-character checksum}"
 FREESCOUT_ROOT="${FREESCOUT_ROOT:-/var/www/html}"
 BASE="https://github.com/RondoHQ/freescout-rondo-integration/releases/download/${VERSION}"
