@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.2] - 2026-09-01
+
+### Fixed
+
+- Sort every ZIP entry before packaging so identical source produces a stable release archive order and checksum.
+
 ## [1.0.1] - 2026-09-01
 
 ### Fixed

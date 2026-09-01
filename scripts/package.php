@@ -19,6 +19,7 @@ $zipPath = $build . '/rondo-integration.zip';
 $zip = new ZipArchive();
 $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 $excluded = ['.git/', 'build/', 'tests/', 'scripts/', '.github/', 'provision/', 'vendor/'];
+$files = [];
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
 foreach ($iterator as $file) {
     if (!$file->isFile()) {
@@ -35,8 +36,12 @@ foreach ($iterator as $file) {
     if ($skip || in_array($relative, ['composer.lock', 'phpunit.xml', '.phpunit.result.cache', '.gitignore'], true)) {
         continue;
     }
+    $files[$relative] = $file->getPathname();
+}
+ksort($files, SORT_STRING);
+foreach ($files as $relative => $path) {
     $name = 'RondoIntegration/' . $relative;
-    $zip->addFile($file->getPathname(), $name);
+    $zip->addFile($path, $name);
     if (method_exists($zip, 'setMtimeName')) {
         $zip->setMtimeName($name, 0);
     }

@@ -31,6 +31,7 @@ jobs:
       - run: php scripts/package.php
       - run: unzip -l build/rondo-integration.zip
       - run: test "$(unzip -Z1 build/rondo-integration.zip | sed 's#/.*##' | sort -u)" = "RondoIntegration"
+      - run: test "$(unzip -Z1 build/rondo-integration.zip)" = "$(unzip -Z1 build/rondo-integration.zip | LC_ALL=C sort)"
       - run: "! unzip -Z1 build/rondo-integration.zip | grep -E '(^|/)(tests|vendor|\\.git|\\.phpunit[^/]*)(/|$)'"
       - run: cd build && sha256sum --check SHA256SUMS
 

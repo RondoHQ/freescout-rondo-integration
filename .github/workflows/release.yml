@@ -46,6 +46,7 @@ jobs:
           composer test
           composer audit --locked
           php scripts/package.php
+          test "$(unzip -Z1 build/rondo-integration.zip)" = "$(unzip -Z1 build/rondo-integration.zip | LC_ALL=C sort)"
           ! unzip -Z1 build/rondo-integration.zip | grep -E '(^|/)(tests|vendor|\.git|\.phpunit[^/]*)(/|$)'
           (cd build && sha256sum --check SHA256SUMS)
       - name: Attest release ZIP
