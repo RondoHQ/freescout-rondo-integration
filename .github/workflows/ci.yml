@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: composer validate --strict
+      - run: composer install --no-interaction --no-progress
+      - run: composer lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: composer install --no-interaction --no-progress
+      - run: composer test
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: php scripts/package.php
+      - run: unzip -l build/rondo-integration.zip
+      - run: test "$(unzip -Z1 build/rondo-integration.zip | sed 's#/.*##' | sort -u)" = "RondoIntegration"
+      - run: cd build && sha256sum --check SHA256SUMS
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: composer install --no-interaction --no-progress
+      - run: composer audit --locked

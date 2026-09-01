@@ -1,0 +1,21 @@
+{
+    "name": "Rondo Integration",
+    "alias": "rondointegration",
+    "description": "Secure Rondo sign-in, managed mailbox access and live conversation context for FreeScout.",
+    "version": "1.0.0",
+    "author": "RondoHQ",
+    "authorUrl": "https://rondo.club",
+    "detailsUrl": "https://github.com/RondoHQ/freescout-rondo-integration",
+    "requiredAppVersion": "1.8.238",
+    "license": "AGPL-3.0-only",
+    "latestVersionUrl": "https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json",
+    "latestVersionZipUrl": "https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/rondo-integration.zip",
+    "providers": [
+        "Modules\\RondoIntegration\\Providers\\RondoIntegrationServiceProvider"
+    ],
+    "requires": [],
+    "files": [
+        "start.php"
+    ]
+}
+
