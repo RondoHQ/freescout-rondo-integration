@@ -1,5 +1,8 @@
 <?php
 
+putenv('TZ=UTC');
+date_default_timezone_set('UTC');
+
 $root = dirname(__DIR__);
 $manifest = json_decode(file_get_contents($root . '/module.json'), true);
 if (!is_array($manifest) || empty($manifest['version'])) {
@@ -43,7 +46,7 @@ foreach ($files as $relative => $path) {
     $name = 'RondoIntegration/' . $relative;
     $zip->addFile($path, $name);
     if (method_exists($zip, 'setMtimeName')) {
-        $zip->setMtimeName($name, 0);
+        $zip->setMtimeName($name, 315532800);
     }
 }
 $zip->close();

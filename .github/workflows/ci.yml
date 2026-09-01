@@ -28,7 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
-      - run: php scripts/package.php
+      - run: TZ=UTC php scripts/package.php && cp build/rondo-integration.zip /tmp/rondo-integration-utc.zip
+      - run: TZ=Pacific/Auckland php scripts/package.php && cmp /tmp/rondo-integration-utc.zip build/rondo-integration.zip
       - run: unzip -l build/rondo-integration.zip
       - run: test "$(unzip -Z1 build/rondo-integration.zip | sed 's#/.*##' | sort -u)" = "RondoIntegration"
       - run: test "$(unzip -Z1 build/rondo-integration.zip)" = "$(unzip -Z1 build/rondo-integration.zip | LC_ALL=C sort)"
