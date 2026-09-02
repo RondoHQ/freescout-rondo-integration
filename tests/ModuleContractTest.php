@@ -8,7 +8,7 @@ class ModuleContractTest extends TestCase
     {
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
-        $this->assertSame('1.0.8', $manifest['version']);
+        $this->assertSame('1.0.9', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -51,13 +51,21 @@ class ModuleContractTest extends TestCase
     {
         $controller = file_get_contents(dirname(__DIR__) . '/Http/Controllers/OidcController.php');
 
-        $this->assertStringContainsString("\\Log::warning('Rondo sign-in failed.'", $controller);
+        $admin = file_get_contents(dirname(__DIR__) . '/Http/Controllers/BindingAdminController.php');
+        $view = file_get_contents(dirname(__DIR__) . '/Resources/views/settings/bindings.blade.php');
+
+        $this->assertStringContainsString("\\Log::error('Rondo sign-in failed.'", $controller);
         $this->assertStringContainsString("'reference' => \$correlation", $controller);
-        $this->assertStringContainsString("'diagnostic' => \$this->diagnosticMessage(\$failure)", $controller);
+        $this->assertStringContainsString("if (\$safe === 'authentication_failed')", $controller);
+        $this->assertStringContainsString("'event_type' => 'oidc_sign_in_failed'", $controller);
+        $this->assertStringContainsString("'reason' => \$details", $controller);
         $this->assertStringContainsString("'exception' => get_class(\$failure)", $controller);
         $this->assertStringContainsString("'location' => basename(\$failure->getFile())", $controller);
         $this->assertStringContainsString("'$1 [redacted]'", $controller);
         $this->assertStringContainsString("'$1[redacted]'", $controller);
+        $this->assertStringContainsString("->where('event_type', 'oidc_sign_in_failed')", $admin);
+        $this->assertStringContainsString('Recent technical sign-in failures', $view);
+        $this->assertStringContainsString('{{ $failure->correlation_id }}', $view);
     }
 
     public function testRoutesUseTheDedicatedRondoNamespaceAndProtectSidebarAjax()

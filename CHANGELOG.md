@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.9] - 2026-09-02
+
+### Fixed
+
+- Persist redacted unexpected OIDC failure diagnostics in the module audit trail and show the latest references to administrators under Rondo identities.
+- Log authentication failures at error level while keeping the login recovery path available when diagnostic storage or logging fails.
+
 ## [1.0.8] - 2026-09-02
 
 ### Fixed

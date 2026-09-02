@@ -30,5 +30,30 @@
     </tbody>
 </table></div>
 {{ $bindings->links() }}
-@endsection
 
+<div class="section-heading">{{ __('Recent technical sign-in failures') }}</div>
+<p class="text-help">{{ __('The latest 20 unexpected failures are shown with redacted diagnostics. Use the reference from the login screen to find the matching attempt.') }}</p>
+@if (count($failures))
+<div class="table-responsive"><table class="table">
+    <thead><tr><th>{{ __('Time') }}</th><th>{{ __('Reference') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Technical details') }}</th></tr></thead>
+    <tbody>
+    @foreach ($failures as $failure)
+        <tr>
+            <td>{{ $failure->created_at }}</td>
+            <td><code>{{ $failure->correlation_id }}</code></td>
+            <td><code>{{ $failure->failure_reason }}</code></td>
+            <td>
+                <details>
+                    <summary>{{ $failure->exception ?: __('View diagnostic') }}</summary>
+                    @if ($failure->diagnostic)<div style="overflow-wrap:anywhere"><code>{{ $failure->diagnostic }}</code></div>@endif
+                    @if ($failure->location)<div class="text-help"><code>{{ $failure->location }}</code></div>@endif
+                </details>
+            </td>
+        </tr>
+    @endforeach
+    </tbody>
+</table></div>
+@else
+<p>{{ __('No technical Rondo sign-in failures have been recorded.') }}</p>
+@endif
+@endsection
