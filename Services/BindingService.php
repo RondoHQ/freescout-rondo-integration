@@ -231,7 +231,7 @@ class BindingService
 
     private function creationPrerequisitesMet()
     {
-        $visibility = filter_var(env('APP_LIMIT_USER_CUSTOMER_VISIBILITY', false), FILTER_VALIDATE_BOOLEAN);
+        $visibility = $this->settings->customerVisibilityRestricted();
         $breakGlass = User::where('role', User::ROLE_ADMIN)->where('status', User::STATUS_ACTIVE)->exists();
         $mapping = DB::table('rondo_mailbox_mappings')->where('state', 'active')->exists();
         return $visibility && $breakGlass && $mapping && $this->settings->isVerified() && $this->settings->hasSecrets();

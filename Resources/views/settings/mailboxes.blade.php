@@ -11,7 +11,7 @@
     <strong>{{ __('Prerequisites') }}:</strong>
     {{ __('Rondo connection') }}: {{ $status['verified'] ? __('Verified') : __('Action required') }} ·
     {{ __('configuration service') }}: {{ $catalog_error ? __('Action required') : __('Available') }} ·
-    APP_LIMIT_USER_CUSTOMER_VISIBILITY: {{ filter_var(env('APP_LIMIT_USER_CUSTOMER_VISIBILITY', false), FILTER_VALIDATE_BOOLEAN) ? __('Verified') : __('Blocking') }}
+    APP_LIMIT_USER_CUSTOMER_VISIBILITY: {{ $status['customer_visibility_restricted'] ? __('Verified') : __('Blocking') }}
 </div>
 
 @if ($catalog_error)

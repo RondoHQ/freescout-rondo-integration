@@ -124,6 +124,11 @@ class SettingsService
         return (bool) $this->get('force_login', false);
     }
 
+    public function customerVisibilityRestricted()
+    {
+        return filter_var(config('rondointegration.limit_user_customer_visibility', false), FILTER_VALIDATE_BOOLEAN);
+    }
+
     public function publicStatus()
     {
         return [
@@ -137,6 +142,7 @@ class SettingsService
             'verified' => $this->isVerified(),
             'has_client_secret' => (bool) $this->get('client_secret'),
             'has_signing_key' => (bool) $this->get('signing_key'),
+            'customer_visibility_restricted' => $this->customerVisibilityRestricted(),
         ];
     }
 
