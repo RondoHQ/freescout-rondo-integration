@@ -6,8 +6,13 @@
         var conversationId = parseInt($root.data('conversation-id'), 10);
         var $status = $root.find('.rondo-sidebar-status');
         var $frame = $root.find('.rondo-sidebar-frame');
+        var frame = $frame.get(0);
+        window.clearTimeout($frame.data('render-timeout'));
         $status.removeClass('hide').text('Loading live Rondo information…');
-        $frame.addClass('hide').attr('srcdoc', '');
+        $frame.addClass('hide').removeData('channel');
+        if (frame) {
+            frame.removeAttribute('srcdoc');
+        }
 
         $.ajax({
             url: endpoint,
@@ -19,10 +24,23 @@
                 $status.text('Rondo information is unavailable.');
                 return;
             }
-            var frame = $frame.get(0);
-            $frame.data('channel', response.channel).css('height', '480px').attr('srcdoc', response.srcdoc).removeClass('hide');
-            $status.addClass('hide');
+            if (!frame) {
+                $status.text('Rondo information could not be displayed.');
+                return;
+            }
             frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+            $frame.data('channel', response.channel).css('height', '160px').removeClass('hide');
+
+            // A srcdoc loaded while the iframe is display:none can retain a zero-sized body.
+            // Wait until the visible iframe has a real viewport before navigating it.
+            window.requestAnimationFrame(function () {
+                frame.srcdoc = response.srcdoc;
+                $frame.data('render-timeout', window.setTimeout(function () {
+                    if ($frame.data('channel') === response.channel && !$status.hasClass('hide')) {
+                        $status.text('Rondo information could not be displayed. Refresh to try again.');
+                    }
+                }, 3000));
+            });
         }).fail(function (xhr) {
             var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Rondo is temporarily unavailable.';
             $status.text(message);
@@ -34,11 +52,14 @@
             var frame = this;
             var data = event.data;
             if (event.source !== frame.contentWindow || !data || data.type !== 'rondo-sidebar-height' || data.version !== 1
-                || data.channel !== $(frame).data('channel') || !Number.isFinite(data.height)) {
+                || data.channel !== $(frame).data('channel') || data.rendered !== true || !Number.isFinite(data.height)) {
                 return;
             }
             var height = Math.max(160, Math.min(1600, Math.round(data.height)));
-            $(frame).css('height', height + 'px');
+            var $frame = $(frame);
+            window.clearTimeout($frame.data('render-timeout'));
+            $frame.removeData('render-timeout').css('height', height + 'px');
+            $frame.closest('[data-rondo-sidebar]').find('.rondo-sidebar-status').addClass('hide');
         });
     });
 

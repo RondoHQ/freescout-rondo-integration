@@ -8,7 +8,7 @@ class ModuleContractTest extends TestCase
     {
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
-        $this->assertSame('1.0.9', $manifest['version']);
+        $this->assertSame('1.0.10', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -75,6 +75,20 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("'/rondo/oidc/callback'", $routes);
         $this->assertStringContainsString("'middleware' => ['web', 'auth']", $routes);
         $this->assertStringNotContainsString('/sidebarwebhook/ajax', $routes);
+    }
+
+    public function testSidebarLoadsSrcdocOnlyAfterTheFrameIsVisible()
+    {
+        $javascript = file_get_contents(dirname(__DIR__) . '/Public/js/module.js');
+        $visible = strpos($javascript, ".removeClass('hide');");
+        $navigate = strpos($javascript, 'frame.srcdoc = response.srcdoc;');
+
+        $this->assertNotFalse($visible);
+        $this->assertNotFalse($navigate);
+        $this->assertLessThan($navigate, $visible);
+        $this->assertStringContainsString('window.requestAnimationFrame(function ()', $javascript);
+        $this->assertStringContainsString('data.rendered !== true', $javascript);
+        $this->assertStringNotContainsString(".attr('srcdoc', response.srcdoc)", $javascript);
     }
 
     public function testRuntimeContainsNoClubSpecificHostname()
