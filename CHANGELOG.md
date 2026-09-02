@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.7] - 2026-09-02
+
+### Fixed
+
+- Log a redacted authentication diagnostic with the same reference shown on failed Rondo sign-ins.
+
 ## [1.0.6] - 2026-09-02
 
 ### Fixed

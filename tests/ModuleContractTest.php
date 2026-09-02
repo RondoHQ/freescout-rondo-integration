@@ -8,7 +8,7 @@ class ModuleContractTest extends TestCase
     {
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
-        $this->assertSame('1.0.6', $manifest['version']);
+        $this->assertSame('1.0.7', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -45,6 +45,19 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("\$status['customer_visibility_restricted']", $view);
         $this->assertStringNotContainsString("env('APP_LIMIT_USER_CUSTOMER_VISIBILITY'", $binding);
         $this->assertStringNotContainsString("env('APP_LIMIT_USER_CUSTOMER_VISIBILITY'", $view);
+    }
+
+    public function testOidcFailuresLogSafeDiagnosticsWithTheVisibleReference()
+    {
+        $controller = file_get_contents(dirname(__DIR__) . '/Http/Controllers/OidcController.php');
+
+        $this->assertStringContainsString("\\Log::warning('Rondo sign-in failed.'", $controller);
+        $this->assertStringContainsString("'reference' => \$correlation", $controller);
+        $this->assertStringContainsString("'diagnostic' => \$this->diagnosticMessage(\$failure)", $controller);
+        $this->assertStringContainsString("'exception' => get_class(\$failure)", $controller);
+        $this->assertStringContainsString("'location' => basename(\$failure->getFile())", $controller);
+        $this->assertStringContainsString("'$1 [redacted]'", $controller);
+        $this->assertStringContainsString("'$1[redacted]'", $controller);
     }
 
     public function testRoutesUseTheDedicatedRondoNamespaceAndProtectSidebarAjax()

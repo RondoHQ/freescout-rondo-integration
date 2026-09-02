@@ -67,7 +67,7 @@ class OidcController extends Controller
             }
             return redirect($request->session()->pull('url.intended', '/'));
         } catch (\Exception $e) {
-            return $this->fail($e->getMessage());
+            return $this->fail($e);
         } finally {
             $request->session()->forget(self::FLOW_SESSION);
         }
@@ -89,20 +89,36 @@ class OidcController extends Controller
             $request->session()->put(self::FLOW_SESSION, $flow);
             return redirect()->away($this->oidc->authorizationUrl($flow));
         } catch (\Exception $e) {
-            return $this->fail($e->getMessage());
+            return $this->fail($e);
         }
     }
 
-    private function fail($reason)
+    private function fail(\Exception $failure)
     {
+        $reason = $failure->getMessage();
         $allowed = [
             'configuration_unavailable', 'flow_expired', 'state_invalid', 'provider_denied', 'code_missing',
             'identity_ineligible', 'binding_unavailable', 'account_creation_disabled', 'managed_mailbox_unavailable',
         ];
         $safe = in_array($reason, $allowed, true) ? $reason : 'authentication_failed';
         $correlation = substr(bin2hex(random_bytes(8)), 0, 12);
+        \Log::warning('Rondo sign-in failed.', [
+            'reference' => $correlation,
+            'reason' => $safe,
+            'exception' => get_class($failure),
+            'diagnostic' => $this->diagnosticMessage($failure),
+            'location' => basename($failure->getFile()) . ':' . $failure->getLine(),
+        ]);
         \Helper::addFloatingFlash('Rondo sign-in failed (' . e($safe) . '). Reference ' . e($correlation) . '.');
         return redirect()->route('login', ['rondo_oauth' => 0]);
+    }
+
+    private function diagnosticMessage(\Exception $failure)
+    {
+        $message = (string) $failure->getMessage();
+        $message = preg_replace('/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\\\/=:-]+/i', '$1 [redacted]', $message);
+        $message = preg_replace('/([?&](?:code|access_token|id_token|client_secret|token)=)[^&\s]+/i', '$1[redacted]', $message);
+        return substr($message, 0, 1000);
     }
 
     private function randomValue($bytes)
