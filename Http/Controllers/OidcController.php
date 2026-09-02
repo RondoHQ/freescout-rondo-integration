@@ -116,9 +116,11 @@ class OidcController extends Controller
     private function diagnosticMessage(\Exception $failure)
     {
         $message = (string) $failure->getMessage();
-        $message = preg_replace('/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\\\/=:-]+/i', '$1 [redacted]', $message);
-        $message = preg_replace('/([?&](?:code|access_token|id_token|client_secret|token)=)[^&\s]+/i', '$1[redacted]', $message);
-        return substr($message, 0, 1000);
+        $message = @preg_replace('#\b(Bearer|Basic)\s+[A-Za-z0-9._~+/=:-]+#i', '$1 [redacted]', $message);
+        $message = is_string($message)
+            ? @preg_replace('#([?&](?:code|access_token|id_token|client_secret|token)=)[^&\s]+#i', '$1[redacted]', $message)
+            : null;
+        return substr(is_string($message) ? $message : 'diagnostic_unavailable', 0, 1000);
     }
 
     private function randomValue($bytes)
