@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.6] - 2026-09-02
+
+### Fixed
+
+- Read the customer-visibility prerequisite through Laravel's cached module configuration so the mailbox mapping screen and guarded user creation agree in production.
+
 ## [1.0.5] - 2026-09-01
 
 ### Fixed

@@ -8,7 +8,7 @@ class ModuleContractTest extends TestCase
     {
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
-        $this->assertSame('1.0.5', $manifest['version']);
+        $this->assertSame('1.0.6', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -30,6 +30,21 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("'spdxVersion'", $command);
         $this->assertStringContainsString("'checksumValue'", $command);
         $this->assertStringContainsString("'licenseDeclared'", $command);
+    }
+
+    public function testCustomerVisibilityPrerequisiteUsesCachedModuleConfiguration()
+    {
+        $config = file_get_contents(dirname(__DIR__) . '/Config/config.php');
+        $settings = file_get_contents(dirname(__DIR__) . '/Services/SettingsService.php');
+        $binding = file_get_contents(dirname(__DIR__) . '/Services/BindingService.php');
+        $view = file_get_contents(dirname(__DIR__) . '/Resources/views/settings/mailboxes.blade.php');
+
+        $this->assertStringContainsString("'limit_user_customer_visibility' => env('APP_LIMIT_USER_CUSTOMER_VISIBILITY', false)", $config);
+        $this->assertStringContainsString("config('rondointegration.limit_user_customer_visibility', false)", $settings);
+        $this->assertStringContainsString('customerVisibilityRestricted()', $binding);
+        $this->assertStringContainsString("\$status['customer_visibility_restricted']", $view);
+        $this->assertStringNotContainsString("env('APP_LIMIT_USER_CUSTOMER_VISIBILITY'", $binding);
+        $this->assertStringNotContainsString("env('APP_LIMIT_USER_CUSTOMER_VISIBILITY'", $view);
     }
 
     public function testRoutesUseTheDedicatedRondoNamespaceAndProtectSidebarAjax()
