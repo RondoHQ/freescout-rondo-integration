@@ -16,6 +16,7 @@ class PackageContractTest extends TestCase
         }
         $zip->close();
         $this->assertContains('RondoIntegration/module.json', $names);
+        $this->assertContains('RondoIntegration/Public/img/rondo-integration.png', $names);
         $this->assertContains('RondoIntegration/LICENSES/Sidebar-Webhook-MIT.txt', $names);
         foreach ($names as $name) {
             $this->assertStringStartsWith('RondoIntegration/', $name);
