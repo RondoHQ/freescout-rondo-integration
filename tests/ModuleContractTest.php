@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.0.11', $manifest['version']);
+        $this->assertSame('1.1.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -104,6 +104,21 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("type: 'rondo-sidebar-height'", $javascript);
         $this->assertStringContainsString('parent.postMessage', $javascript);
         $this->assertStringContainsString('new ResizeObserver(sendHeight)', $javascript);
+    }
+
+    public function testConversationActivitiesUseABoundedScheduledDeliveryQueue()
+    {
+        $provider = file_get_contents(dirname(__DIR__) . '/Providers/RondoIntegrationServiceProvider.php');
+        $delivery = file_get_contents(dirname(__DIR__) . '/Services/ActivityDeliveryService.php');
+        $queue = file_get_contents(dirname(__DIR__) . '/Services/ActivityQueueService.php');
+        $migration = file_get_contents(dirname(__DIR__) . '/Database/Migrations/2026_09_01_000002_create_rondo_managed_access_tables.php');
+
+        $this->assertStringContainsString("rondo:deliver-activities')->everyMinute()->withoutOverlapping()", $provider);
+        $this->assertStringContainsString('const BATCH_SIZE = 25;', $delivery);
+        $this->assertStringContainsString("Conversation::with(['customer.emails'])", $delivery);
+        $this->assertStringContainsString('Integration queue failures must not block normal FreeScout conversation handling.', $queue);
+        $this->assertStringContainsString("'/wp-json/rondo/v1/integrations/freescout/activity'", file_get_contents(dirname(__DIR__) . '/Services/RondoApiClient.php'));
+        $this->assertStringNotContainsString('customer_email', strtolower($migration));
     }
 
     public function testRuntimeContainsNoClubSpecificHostname()

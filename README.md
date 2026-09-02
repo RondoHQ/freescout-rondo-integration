@@ -10,14 +10,14 @@ Rondo Integration is the first-party FreeScout module for Rondo Club. It provide
 - `APP_LIMIT_USER_CUSTOMER_VISIBILITY=true` before guarded user creation can be enabled
 - One tested local FreeScout administrator account as break glass
 
-The module fails closed for Rondo data and managed access until the matching Rondo integration configuration, access and sidebar endpoints are active. Normal FreeScout operation and `/login?rondo_oauth=0` remain available during that setup.
+The module fails closed for Rondo data and managed access until the matching Rondo integration configuration, access and sidebar endpoints are active. Normal FreeScout operation and `/login?rondo_oauth=0` remain available during that setup. Conversation creation and customer-change events for mapped mailboxes are delivered from a bounded local queue; unmatched and temporary failures retry without storing customer emails.
 
 ## Install
 
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.0.11
+export RONDO_MODULE_VERSION=v1.1.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -36,13 +36,23 @@ Verify OIDC discovery before enabling login. Keep `/login?rondo_oauth=0` and a l
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.0.11 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.0.11 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.1.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.1.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
 
 Administrators can match an unexpected failed-login reference under **Manage → Rondo Integration → Rondo identities**. The module stores only redacted diagnostics in its audit trail and keeps authentication recoverable if either diagnostic storage or file logging is unavailable.
+
+## Conversation activity delivery
+
+The module queues creation and customer-change events only for active mapped mailboxes. FreeScout's scheduler delivers at most 25 due events per minute. Successful pointers are removed from the queue; `no_match`, `ambiguous` and temporary failures retry after 1, 5, 15 and then 60 minutes. Each attempt reloads the current conversation, customer and normalized email set, so no customer email is stored in the queue or delivery logs.
+
+For a controlled manual run:
+
+```sh
+php artisan rondo:deliver-activities --limit=25
+```
 
 ## Configuration precedence
 

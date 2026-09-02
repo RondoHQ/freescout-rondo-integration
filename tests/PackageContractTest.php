@@ -23,6 +23,7 @@ class PackageContractTest extends TestCase
             $this->assertStringStartsWith('RondoIntegration/', $name);
             $this->assertStringNotContainsString('/tests/', $name);
             $this->assertStringNotContainsString('/.git/', $name);
+            $this->assertNotSame('RondoIntegration/.git', $name);
         }
     }
 }

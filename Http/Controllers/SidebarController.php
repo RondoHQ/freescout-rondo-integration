@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Modules\RondoIntegration\Services\BindingService;
+use Modules\RondoIntegration\Services\CustomerEmailService;
 use Modules\RondoIntegration\Services\RondoApiClient;
 use Modules\RondoIntegration\Services\SidebarDocument;
 
 class SidebarController extends Controller
 {
-    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document)
+    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails)
     {
         $request->validate(['conversation_id' => 'required|integer|min:1']);
         $conversation = Conversation::with(['customer.emails'])->findOrFail((int) $request->conversation_id);
@@ -31,20 +32,13 @@ class SidebarController extends Controller
         if (!$binding) {
             return response()->json(['status' => 'unauthorized', 'message' => 'Sign in with Rondo to view member context.'], 403);
         }
-        $emails = [];
-        foreach ($conversation->customer->emails as $email) {
-            $normalized = strtolower(trim((string) $email->email));
-            if (filter_var($normalized, FILTER_VALIDATE_EMAIL) && substr($normalized, -22) !== '@members.rondo.invalid') {
-                $emails[$normalized] = true;
-            }
-        }
         $payload = [
             'version' => 1,
             'mailboxKey' => $mapping->stable_key,
             'conversationId' => (int) $conversation->id,
             'conversationNumber' => (int) $conversation->number,
             'customerId' => (int) $conversation->customer_id,
-            'customerEmails' => array_keys($emails),
+            'customerEmails' => $emails->fromCustomer($conversation->customer),
             'agent' => [
                 'freescoutUserId' => (int) $agent->id,
                 'issuer' => $binding->issuer,
@@ -62,4 +56,3 @@ class SidebarController extends Controller
         }
     }
 }
-

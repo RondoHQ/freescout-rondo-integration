@@ -7,13 +7,17 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\RondoIntegration\Console\DeliverActivitiesCommand;
 use Modules\RondoIntegration\Console\IntegrationUpdateCommand;
 use Modules\RondoIntegration\Console\ReconcileAccessCommand;
+use Modules\RondoIntegration\Services\ActivityDeliveryPolicy;
+use Modules\RondoIntegration\Services\ActivityDeliveryService;
 use Modules\RondoIntegration\Services\ActivityQueueService;
 use Modules\RondoIntegration\Services\AccessReconciler;
 use Modules\RondoIntegration\Services\BindingService;
 use Modules\RondoIntegration\Services\EnvironmentMappingService;
 use Modules\RondoIntegration\Services\BoundedHttpClient;
+use Modules\RondoIntegration\Services\CustomerEmailService;
 use Modules\RondoIntegration\Services\HmacSigner;
 use Modules\RondoIntegration\Services\MailboxAccessService;
 use Modules\RondoIntegration\Services\MappingImpactService;
@@ -41,7 +45,10 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(EnvironmentMappingService::class);
         $this->app->singleton(SidebarDocument::class);
         $this->app->singleton(ActivityQueueService::class);
-        $this->commands([IntegrationUpdateCommand::class, ReconcileAccessCommand::class]);
+        $this->app->singleton(CustomerEmailService::class);
+        $this->app->singleton(ActivityDeliveryPolicy::class);
+        $this->app->singleton(ActivityDeliveryService::class);
+        $this->commands([IntegrationUpdateCommand::class, ReconcileAccessCommand::class, DeliverActivitiesCommand::class]);
     }
 
     public function boot()
@@ -155,6 +162,7 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         });
         \Eventy::addFilter('schedule', function ($schedule) {
             $schedule->command('rondo:reconcile-access')->hourly()->withoutOverlapping();
+            $schedule->command('rondo:deliver-activities')->everyMinute()->withoutOverlapping();
             return $schedule;
         });
     }

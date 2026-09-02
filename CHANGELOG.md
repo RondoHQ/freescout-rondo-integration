@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.0] - 2026-09-02
+
+### Added
+
+- Deliver mapped FreeScout conversation creation and customer-change events to Rondo from a bounded, retryable queue.
+- Reload current customer emails for every delivery without storing them in the queue or logs.
+
+### Changed
+
+- Share one normalized customer-email policy between the live sidebar and activity delivery.
+
+### Fixed
+
+- Exclude the Git worktree pointer file from release archives built inside a worktree.
+
 ## [1.0.11] - 2026-09-02
 
 ### Fixed
