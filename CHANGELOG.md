@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.8] - 2026-09-02
+
+### Fixed
+
+- Make authentication diagnostic redaction fail safely and cover token-shaped values with an executable regression test.
+
 ## [1.0.7] - 2026-09-02
 
 ### Fixed
