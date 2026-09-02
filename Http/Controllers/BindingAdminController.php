@@ -18,7 +18,20 @@ class BindingAdminController extends Controller
             ->select('rondo_oidc_bindings.*', 'users.first_name', 'users.last_name')
             ->orderBy('rondo_oidc_bindings.created_at', 'desc')
             ->paginate(50);
-        return view('rondointegration::settings.bindings', ['bindings' => $bindings]);
+        $failures = DB::table('rondo_oidc_binding_audit')
+            ->where('event_type', 'oidc_sign_in_failed')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+        foreach ($failures as $failure) {
+            $details = json_decode((string) $failure->reason, true);
+            $details = is_array($details) ? $details : [];
+            $failure->failure_reason = isset($details['reason']) ? $details['reason'] : 'authentication_failed';
+            $failure->exception = isset($details['exception']) ? $details['exception'] : '';
+            $failure->diagnostic = isset($details['diagnostic']) ? $details['diagnostic'] : '';
+            $failure->location = isset($details['location']) ? $details['location'] : '';
+        }
+        return view('rondointegration::settings.bindings', ['bindings' => $bindings, 'failures' => $failures]);
     }
 
     public function disable(User $user, Request $request, BindingService $bindings)
@@ -47,4 +60,3 @@ class BindingAdminController extends Controller
         }
     }
 }
-
