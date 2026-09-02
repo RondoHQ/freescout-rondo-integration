@@ -1,6 +1,6 @@
 # Rondo Integration for FreeScout
 
-Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed mailbox access, live Rondo context in a sandboxed conversation sidebar, controlled club accents and responsive sidebar width. When a customer email belongs to multiple accessible Rondo profiles, the iframe offers a profile selector and shows one full profile card at a time.
+Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed Ledenadministratie and Contributie mailbox access, and live Rondo context in a sandboxed conversation sidebar. Administrators select independently in which active mailboxes the sidebar appears; mailbox selection never grants access. When a customer email belongs to multiple accessible Rondo profiles, the iframe offers a profile selector and shows one full profile card at a time.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ After activation, open **Manage → Rondo Integration**. Configure the Rondo bas
 https://your-freescout.example/rondo/oidc/callback
 ```
 
-Verify OIDC discovery before enabling login. Keep `/login?rondo_oauth=0` and a local administrator available as independent recovery paths.
+Select the active mailboxes in which the sidebar should appear, then verify OIDC discovery before enabling login. A valid bound Rondo sign-in is required for profile data. Financial information is shown only in the dedicated Ledenadministratie and Contributie policies and only to users with financial permission. Keep `/login?rondo_oauth=0` and a local administrator available as independent recovery paths.
 
 ## Approved updates
 
@@ -69,7 +69,7 @@ Environment values override the administrator interface:
 - `RONDO_MANAGED_MAILBOX_MAPPINGS`
 - `RONDO_ALLOW_LOCAL_HTTP` for an explicitly local/testing environment only
 
-`RONDO_MANAGED_MAILBOX_MAPPINGS` is a JSON object such as `{"ledenadministratie":7}`. Keys are accepted only when returned by Rondo's configuration service, mailbox IDs must be active and unique, and the UI cannot replace an environment-managed selection.
+`RONDO_MANAGED_MAILBOX_MAPPINGS` is a JSON object such as `{"ledenadministratie":7,"contributie":9}`. Keys are accepted only when returned by Rondo's configuration service, mailbox IDs must be active and unique, and the UI cannot replace an environment-managed selection.
 
 No club URL, mailbox ID, signing key, client secret or club color is compiled into the release.
 

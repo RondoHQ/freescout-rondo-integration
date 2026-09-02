@@ -9,11 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Modules\RondoIntegration\Services\BindingService;
 use Modules\RondoIntegration\Services\CustomerEmailService;
 use Modules\RondoIntegration\Services\RondoApiClient;
+use Modules\RondoIntegration\Services\SettingsService;
 use Modules\RondoIntegration\Services\SidebarDocument;
 
 class SidebarController extends Controller
 {
-    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails)
+    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails, SettingsService $settings)
     {
         $request->validate(['conversation_id' => 'required|integer|min:1']);
         $conversation = Conversation::with(['customer.emails'])->findOrFail((int) $request->conversation_id);
@@ -21,20 +22,20 @@ class SidebarController extends Controller
         if (!$agent || !$agent->can('view', $conversation)) {
             abort(403);
         }
+        if (!$settings->sidebarEnabledForMailbox($conversation->mailbox_id)) {
+            return response()->json(['status' => 'unavailable', 'message' => 'Rondo is not enabled for this mailbox.'], 422);
+        }
         $mapping = DB::table('rondo_mailbox_mappings')
             ->where('mailbox_id', $conversation->mailbox_id)
             ->where('state', 'active')
             ->first();
-        if (!$mapping) {
-            return response()->json(['status' => 'unavailable', 'message' => 'Rondo is not enabled for this mailbox.'], 422);
-        }
         $binding = $bindings->activeForUser($agent->id);
         if (!$binding) {
             return response()->json(['status' => 'unauthorized', 'message' => 'Sign in with Rondo to view member context.'], 403);
         }
         $payload = [
             'version' => 1,
-            'mailboxKey' => $mapping->stable_key,
+            'mailboxKey' => $mapping ? $mapping->stable_key : 'basis',
             'conversationId' => (int) $conversation->id,
             'conversationNumber' => (int) $conversation->number,
             'customerId' => (int) $conversation->customer_id,
