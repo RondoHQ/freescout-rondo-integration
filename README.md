@@ -1,6 +1,6 @@
 # Rondo Integration for FreeScout
 
-Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed mailbox access, live Rondo context in a sandboxed conversation sidebar, controlled club accents and responsive sidebar width.
+Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed mailbox access, live Rondo context in a sandboxed conversation sidebar, controlled club accents and responsive sidebar width. When a customer email belongs to multiple accessible Rondo profiles, the iframe offers a profile selector and shows one full profile card at a time.
 
 ## Requirements
 

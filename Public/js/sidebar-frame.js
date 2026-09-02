@@ -31,6 +31,16 @@
     var observer = new ResizeObserver(sendHeight);
     observer.observe(document.documentElement);
     observer.observe(body);
+    body.addEventListener('change', function (event) {
+        var switcher = event.target.closest('[data-rondo-profile-switcher]');
+        if (!switcher || !/^rondo-profile-[0-9]+$/.test(switcher.value)) {
+            return;
+        }
+        body.querySelectorAll('[data-rondo-profile-panel]').forEach(function (panel) {
+            panel.hidden = panel.id !== switcher.value;
+        });
+        sendHeight();
+    });
     window.addEventListener('load', sendHeight);
     sendHeight();
 }());
