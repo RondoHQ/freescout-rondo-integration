@@ -49,6 +49,16 @@
                 </div>
             </div>
             <div class="form-group"><div class="col-sm-7 col-sm-offset-3"><label><input type="checkbox" name="appearance_enabled" value="1" {{ old('appearance_enabled', $settings['appearance_enabled'] ?? true) ? 'checked' : '' }}> {{ __('Enable controlled appearance overrides') }}</label></div></div>
+            @php $selectedSidebarMailboxIds = old('sidebar_mailboxes', $sidebar_mailbox_ids); @endphp
+            <div class="form-group">
+                <label class="col-sm-3 control-label">{{ __('Show Rondo sidebar in') }}</label>
+                <div class="col-sm-7">
+                    @foreach ($sidebar_mailboxes as $mailbox)
+                        <div class="checkbox"><label><input type="checkbox" name="sidebar_mailboxes[]" value="{{ $mailbox->id }}" {{ in_array((int) $mailbox->id, array_map('intval', (array) $selectedSidebarMailboxIds), true) ? 'checked' : '' }}> {{ $mailbox->name }} &lt;{{ $mailbox->email }}&gt;</label></div>
+                    @endforeach
+                    <p class="help-block">{{ __('This controls where the sidebar is shown and does not grant mailbox access. A valid Rondo sign-in is required. Financial information additionally requires financial permission and an eligible mailbox policy.') }}</p>
+                </div>
+            </div>
             <div class="form-group"><div class="col-sm-7 col-sm-offset-3"><label><input type="checkbox" name="automatic_user_creation" value="1" {{ old('automatic_user_creation', $settings['automatic_user_creation'] ?? false) ? 'checked' : '' }}> {{ __('Allow guarded creation of ordinary Rondo-only agents') }}</label><p class="help-block">{{ __('Requires limited customer visibility, a verified connection, an active mailbox mapping and a local break-glass administrator.') }}</p></div></div>
             <div class="form-group"><div class="col-sm-7 col-sm-offset-3"><button class="btn btn-primary" type="submit">{{ __('Save') }}</button></div></div>
         </form>

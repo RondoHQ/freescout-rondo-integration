@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [1.4.0] - 2026-09-02
+
+### Added
+
+- Accept the closed `contributie.v1` mailbox policy, which requires Rondo's effective `financieel` capability.
+- Let administrators select every active FreeScout mailbox in which the Rondo sidebar should appear, independently of managed mailbox-access mappings.
+
+### Changed
+
+- Require `ledenadministratie.v2`, allowing Rondo to add live financial context only for the exact signed-in user when their separate finance permission allows it.
+- Use the generic `basis.v1` sidebar policy for selected mailboxes without a dedicated Rondo mapping.
+
 ## [1.3.0] - 2026-09-02
 
 ### Added
