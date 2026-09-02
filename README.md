@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.1.0
+export RONDO_MODULE_VERSION=v1.2.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -36,8 +36,8 @@ Verify OIDC discovery before enabling login. Keep `/login?rondo_oauth=0` and a l
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.1.0 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.1.0 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.2.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.2.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
@@ -46,7 +46,9 @@ Administrators can match an unexpected failed-login reference under **Manage →
 
 ## Conversation activity delivery
 
-The module queues creation and customer-change events only for active mapped mailboxes. FreeScout's scheduler delivers at most 25 due events per minute. Successful pointers are removed from the queue; `no_match`, `ambiguous` and temporary failures retry after 1, 5, 15 and then 60 minutes. Each attempt reloads the current conversation, customer and normalized email set, so no customer email is stored in the queue or delivery logs.
+The module queues conversation creation, incoming reply, sent reply and customer-change events only for active mapped mailboxes. FreeScout's scheduler delivers at most 25 due events per minute. Each published reply becomes a separate idempotent pointer keyed by its FreeScout thread ID; sent replies can be attributed through the agent's existing Rondo subject binding. No message body, attachment, recipient or agent email is sent to Rondo.
+
+Successful pointers are removed from the queue; `no_match`, `ambiguous` and temporary failures retry after 1, 5, 15 and then 60 minutes. Each attempt reloads the current conversation, customer and normalized email set, so no customer email is stored in the queue or delivery logs. A customer reassignment moves, hides or restores every pointer for that conversation together.
 
 For a controlled manual run:
 

@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.0] - 2026-09-02
+
+### Added
+
+- Deliver each incoming and sent reply as its own idempotent Rondo timeline activity after the reply is published.
+- Attribute sent replies to the bound Rondo user without sending agent email addresses or FreeScout message content.
+
+### Changed
+
+- Move, hide or restore every activity belonging to a conversation when its FreeScout customer changes.
+
 ## [1.1.0] - 2026-09-02
 
 ### Added

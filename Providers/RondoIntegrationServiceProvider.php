@@ -157,6 +157,12 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         \Eventy::addAction('conversation.created_by_user_can_undo', function ($conversation) {
             app(ActivityQueueService::class)->enqueue('conversation_created', $conversation);
         }, 20, 2);
+        Event::listen('App\\Events\\CustomerReplied', function ($event) {
+            app(ActivityQueueService::class)->enqueue('customer_replied', $event->conversation, $event->thread);
+        });
+        \Eventy::addAction('conversation.user_replied', function ($conversation, $thread) {
+            app(ActivityQueueService::class)->enqueue('user_replied', $conversation, $thread);
+        }, 20, 2);
         Event::listen('App\\Events\\ConversationCustomerChanged', function ($event) {
             app(ActivityQueueService::class)->enqueue('conversation_customer_changed', $event->conversation);
         });

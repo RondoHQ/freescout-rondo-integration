@@ -3,6 +3,7 @@
 namespace Modules\RondoIntegration\Services;
 
 use App\Conversation;
+use App\Thread;
 use Illuminate\Support\Facades\DB;
 
 class ActivityDeliveryService
@@ -80,8 +81,37 @@ class ActivityDeliveryService
         }
 
         $createdAt = strtotime((string) $conversation->created_at);
+        $actor = null;
+        $threadId = (int) ($row->thread_id ?? 0);
+        if (in_array((string) $row->event_type, ['customer_replied', 'user_replied'], true)) {
+            $thread = Thread::find($threadId);
+            if (!$thread || (int) $thread->conversation_id !== (int) $conversation->id || (int) $thread->state !== Thread::STATE_PUBLISHED) {
+                throw new \RuntimeException('thread_unavailable');
+            }
+            $expectedType = (string) $row->event_type === 'customer_replied' ? Thread::TYPE_CUSTOMER : Thread::TYPE_MESSAGE;
+            if ((int) $thread->type !== $expectedType) {
+                throw new \RuntimeException('thread_type_invalid');
+            }
+            $createdAt = strtotime((string) $thread->created_at);
+            if ((string) $row->event_type === 'user_replied' && (int) $thread->created_by_user_id > 0) {
+                $userId = (int) $thread->created_by_user_id;
+                $binding = DB::table('rondo_oidc_bindings')
+                    ->where(function ($query) use ($userId) {
+                        $query->where('active_user_id', $userId)->orWhere('last_user_id', $userId);
+                    })
+                    ->orderByDesc('id')
+                    ->first();
+                if ($binding) {
+                    $actor = [
+                        'freescoutUserId' => (int) $thread->created_by_user_id,
+                        'issuer' => (string) $binding->issuer,
+                        'subject' => (string) $binding->subject,
+                    ];
+                }
+            }
+        }
         if ($createdAt === false) {
-            throw new \RuntimeException('conversation_timestamp_invalid');
+            throw new \RuntimeException($threadId > 0 ? 'thread_timestamp_invalid' : 'conversation_timestamp_invalid');
         }
         $payload = [
             'version' => 1,
@@ -94,6 +124,12 @@ class ActivityDeliveryService
             'subject' => $this->plainSubject($conversation->subject),
             'createdAt' => gmdate(DATE_ATOM, $createdAt),
         ];
+        if ($threadId > 0) {
+            $payload['eventId'] = $threadId;
+        }
+        if ($actor !== null) {
+            $payload['actor'] = $actor;
+        }
         return $this->rondo->activity($payload);
     }
 
