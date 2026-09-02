@@ -21,7 +21,7 @@ mkdir($build, 0755, true);
 $zipPath = $build . '/rondo-integration.zip';
 $zip = new ZipArchive();
 $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-$excluded = ['.git/', 'build/', 'tests/', 'scripts/', '.github/', 'provision/', 'vendor/'];
+$excluded = ['.git', '.git/', 'build/', 'tests/', 'scripts/', '.github/', 'provision/', 'vendor/'];
 $files = [];
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
 foreach ($iterator as $file) {
