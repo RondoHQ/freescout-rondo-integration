@@ -20,9 +20,11 @@ class SidebarDocumentTest extends TestCase
         $this->assertStringNotContainsString('https://evil.example', $result['srcdoc']);
         $this->assertStringContainsString('https://rondo.example.nl/people/1', $result['srcdoc']);
         $this->assertStringContainsString('default-src &#039;none&#039;', $result['srcdoc']);
-        $this->assertStringContainsString('rondo-sidebar-height', $result['srcdoc']);
-        $this->assertStringContainsString('r.width>0&&b.children.length', $result['srcdoc']);
-        $this->assertStringContainsString('rendered:rendered', $result['srcdoc']);
+        $this->assertStringContainsString('script-src https://freescout.example.test', $result['srcdoc']);
+        $this->assertStringContainsString('data-rondo-channel="' . $result['channel'] . '"', $result['srcdoc']);
+        $this->assertStringContainsString('data-rondo-parent-origin="https://freescout.example.test"', $result['srcdoc']);
+        $this->assertStringContainsString('<script src="https://freescout.example.test/modules/rondointegration/js/sidebar-frame.js"></script>', $result['srcdoc']);
+        $this->assertStringNotContainsString('<script nonce=', $result['srcdoc']);
         $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{32}$/', $result['channel']);
     }
 }

@@ -14,23 +14,19 @@ class SidebarDocument
     public function render($remoteHtml)
     {
         $channel = $this->base64Url(random_bytes(24));
-        $nonce = $this->base64Url(random_bytes(24));
         $markup = $this->sanitize($remoteHtml);
         $appUrl = function_exists('config') ? config('app.url') : 'https://freescout.example.test';
         $parent = $this->origin($appUrl);
+        $scriptUrl = rtrim($appUrl, '/') . '/modules/rondointegration/js/sidebar-frame.js';
         $accent = $this->settings->get('accent', '#0069AA');
         $surface = $this->settings->get('accent_surface', '#D9EDF7');
-        $script = "(function(){var c=" . json_encode($channel) . ",o=" . json_encode($parent)
-            . ",t=null;function send(){clearTimeout(t);t=setTimeout(function(){var b=document.body,r=b?b.getBoundingClientRect():null,"
-            . "h=Math.ceil(Math.max(document.documentElement.scrollHeight,b?b.scrollHeight:0)),rendered=!!(b&&r&&r.width>0&&b.children.length);"
-            . "if(Number.isFinite(h)){parent.postMessage({type:'rondo-sidebar-height',version:1,channel:c,height:Math.max(160,Math.min(1600,h)),rendered:rendered},o);}},40);}"
-            . "var z=new ResizeObserver(send);z.observe(document.documentElement);if(document.body){z.observe(document.body);}addEventListener('load',send);send();}());";
-        $csp = "default-src 'none'; script-src 'nonce-" . $nonce . "'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'";
+        $csp = "default-src 'none'; script-src " . $parent . "; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'";
         $document = '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'
             . htmlspecialchars($csp, ENT_QUOTES, 'UTF-8') . '"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<style>:root{--rondo-accent:' . htmlspecialchars($accent, ENT_QUOTES, 'UTF-8') . ';--rondo-accent-surface:' . htmlspecialchars($surface, ENT_QUOTES, 'UTF-8')
             . ';color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:10px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#333;background:#fff}a{color:var(--rondo-accent);font-weight:600}details{border-top:1px solid #ddd;padding:8px 0}summary{cursor:pointer;color:var(--rondo-accent)}.rondo-highlight{background:var(--rondo-accent-surface);padding:8px;border-radius:4px}</style>'
-            . '</head><body>' . $markup . '<script nonce="' . htmlspecialchars($nonce, ENT_QUOTES, 'UTF-8') . '">' . $script . '</script></body></html>';
+            . '</head><body data-rondo-channel="' . htmlspecialchars($channel, ENT_QUOTES, 'UTF-8') . '" data-rondo-parent-origin="' . htmlspecialchars($parent, ENT_QUOTES, 'UTF-8') . '">'
+            . $markup . '<script src="' . htmlspecialchars($scriptUrl, ENT_QUOTES, 'UTF-8') . '"></script></body></html>';
         return ['srcdoc' => $document, 'channel' => $channel];
     }
 
