@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.11] - 2026-09-02
+
+### Fixed
+
+- Move sidebar height reporting to a same-origin external script allowed by FreeScout's inherited content security policy.
+- Fall back to a usable fixed-height sidebar when automatic height reporting is unavailable.
+
 ## [1.0.10] - 2026-09-02
 
 ### Fixed

@@ -9,7 +9,7 @@
         var frame = $frame.get(0);
         window.clearTimeout($frame.data('render-timeout'));
         $status.removeClass('hide').text('Loading live Rondo information…');
-        $frame.addClass('hide').removeData('channel');
+        $frame.addClass('hide').removeData('channel').removeData('rendered').off('load.rondoSidebar');
         if (frame) {
             frame.removeAttribute('srcdoc');
         }
@@ -30,6 +30,17 @@
             }
             frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
             $frame.data('channel', response.channel).css('height', '160px').removeClass('hide');
+            $frame.one('load.rondoSidebar', function () {
+                if ($frame.data('channel') !== response.channel) {
+                    return;
+                }
+                window.clearTimeout($frame.data('render-timeout'));
+                $frame.removeData('render-timeout');
+                $status.addClass('hide');
+                if ($frame.data('rendered') !== true) {
+                    $frame.css('height', '700px');
+                }
+            });
 
             // A srcdoc loaded while the iframe is display:none can retain a zero-sized body.
             // Wait until the visible iframe has a real viewport before navigating it.
@@ -58,7 +69,7 @@
             var height = Math.max(160, Math.min(1600, Math.round(data.height)));
             var $frame = $(frame);
             window.clearTimeout($frame.data('render-timeout'));
-            $frame.removeData('render-timeout').css('height', height + 'px');
+            $frame.removeData('render-timeout').data('rendered', true).css('height', height + 'px');
             $frame.closest('[data-rondo-sidebar]').find('.rondo-sidebar-status').addClass('hide');
         });
     });

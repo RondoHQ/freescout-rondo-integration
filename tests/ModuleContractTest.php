@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.0.10', $manifest['version']);
+        $this->assertSame('1.0.11', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -90,7 +90,20 @@ class ModuleContractTest extends TestCase
         $this->assertLessThan($navigate, $visible);
         $this->assertStringContainsString('window.requestAnimationFrame(function ()', $javascript);
         $this->assertStringContainsString('data.rendered !== true', $javascript);
+        $this->assertStringContainsString(".one('load.rondoSidebar'", $javascript);
+        $this->assertStringContainsString(".css('height', '700px')", $javascript);
         $this->assertStringNotContainsString(".attr('srcdoc', response.srcdoc)", $javascript);
+    }
+
+    public function testSidebarHeightReporterIsAnExternalCspCompatibleAsset()
+    {
+        $javascript = file_get_contents(dirname(__DIR__) . '/Public/js/sidebar-frame.js');
+
+        $this->assertStringContainsString("body.getAttribute('data-rondo-channel')", $javascript);
+        $this->assertStringContainsString("body.getAttribute('data-rondo-parent-origin')", $javascript);
+        $this->assertStringContainsString("type: 'rondo-sidebar-height'", $javascript);
+        $this->assertStringContainsString('parent.postMessage', $javascript);
+        $this->assertStringContainsString('new ResizeObserver(sendHeight)', $javascript);
     }
 
     public function testRuntimeContainsNoClubSpecificHostname()
