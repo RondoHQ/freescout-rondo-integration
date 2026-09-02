@@ -24,7 +24,7 @@ class SidebarDocument
         $document = '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'
             . htmlspecialchars($csp, ENT_QUOTES, 'UTF-8') . '"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<style>:root{--rondo-accent:' . htmlspecialchars($accent, ENT_QUOTES, 'UTF-8') . ';--rondo-accent-surface:' . htmlspecialchars($surface, ENT_QUOTES, 'UTF-8')
-            . ';color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:10px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#333;background:#fff}a{color:var(--rondo-accent);font-weight:600}details{border-top:1px solid #ddd;padding:8px 0}summary{cursor:pointer;color:var(--rondo-accent)}.rondo-highlight{background:var(--rondo-accent-surface);padding:8px;border-radius:4px}</style>'
+            . ';color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:10px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#333;background:#fff}a{color:var(--rondo-accent);font-weight:600}details{border-top:1px solid #ddd;padding:8px 0}summary{cursor:pointer;color:var(--rondo-accent)}.rondo-highlight{background:var(--rondo-accent-surface);padding:8px;border-radius:4px}.rondo-profile-choice{position:sticky;top:0;z-index:2;margin:-10px -10px 10px;padding:10px;background:#fff;border-bottom:1px solid #ddd}.rondo-profile-choice label{display:block;margin-bottom:4px}.rondo-profile-choice select{display:block;width:100%;min-height:36px;padding:6px 28px 6px 8px;border:1px solid #bbb;border-radius:4px;background:#fff;color:#333;font:inherit}.rondo-profile-choice p{margin:4px 0 0;color:#6b7280}[data-rondo-profile-panel][hidden]{display:none}</style>'
             . '</head><body data-rondo-channel="' . htmlspecialchars($channel, ENT_QUOTES, 'UTF-8') . '" data-rondo-parent-origin="' . htmlspecialchars($parent, ENT_QUOTES, 'UTF-8') . '">'
             . $markup . '<script src="' . htmlspecialchars($scriptUrl, ENT_QUOTES, 'UTF-8') . '"></script></body></html>';
         return ['srcdoc' => $document, 'channel' => $channel];
@@ -36,7 +36,7 @@ class SidebarDocument
         libxml_use_internal_errors(true);
         $document->loadHTML('<?xml encoding="utf-8" ?><div id="rondo-root">' . (string) $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
-        $blocked = ['script', 'style', 'form', 'input', 'button', 'textarea', 'select', 'iframe', 'frame', 'object', 'embed', 'base', 'meta', 'link', 'svg', 'math', 'video', 'audio', 'source'];
+        $blocked = ['script', 'style', 'form', 'input', 'button', 'textarea', 'iframe', 'frame', 'object', 'embed', 'base', 'meta', 'link', 'svg', 'math', 'video', 'audio', 'source'];
         foreach ($blocked as $tag) {
             $nodes = [];
             foreach ($document->getElementsByTagName($tag) as $node) {

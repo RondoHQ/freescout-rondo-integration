@@ -27,4 +27,23 @@ class SidebarDocumentTest extends TestCase
         $this->assertStringNotContainsString('<script nonce=', $result['srcdoc']);
         $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{32}$/', $result['channel']);
     }
+
+    public function testProfileSwitcherSurvivesSanitizingWithoutInlineScript()
+    {
+        $settings = $this->getMockBuilder(SettingsService::class)->onlyMethods(['baseUrl', 'get'])->getMock();
+        $settings->method('baseUrl')->willReturn('https://rondo.example.nl');
+        $settings->method('get')->willReturnCallback(function ($key, $default = null) {
+            return $default;
+        });
+        $document = new SidebarDocument($settings);
+        $html = '<select data-rondo-profile-switcher onchange="alert(1)"><option value="rondo-profile-0">Maaike</option></select>'
+            . '<div id="rondo-profile-0" data-rondo-profile-panel>Profile</div>';
+
+        $result = $document->render($html);
+
+        $this->assertStringContainsString('data-rondo-profile-switcher', $result['srcdoc']);
+        $this->assertStringContainsString('data-rondo-profile-panel', $result['srcdoc']);
+        $this->assertStringNotContainsString('onchange', $result['srcdoc']);
+        $this->assertStringNotContainsString('alert(1)', $result['srcdoc']);
+    }
 }

@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.0] - 2026-09-02
+
+### Added
+
+- Switch between all accessible Rondo profiles that share a customer email address inside the existing sidebar iframe.
+
+### Changed
+
+- Preserve the server-rendered profile selector while continuing to strip inline scripts and event handlers.
+
 ## [1.2.0] - 2026-09-02
 
 ### Added
