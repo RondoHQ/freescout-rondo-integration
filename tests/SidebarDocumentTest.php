@@ -21,6 +21,8 @@ class SidebarDocumentTest extends TestCase
         $this->assertStringContainsString('https://rondo.example.nl/people/1', $result['srcdoc']);
         $this->assertStringContainsString('default-src &#039;none&#039;', $result['srcdoc']);
         $this->assertStringContainsString('rondo-sidebar-height', $result['srcdoc']);
+        $this->assertStringContainsString('r.width>0&&b.children.length', $result['srcdoc']);
+        $this->assertStringContainsString('rendered:rendered', $result['srcdoc']);
         $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{32}$/', $result['channel']);
     }
 }

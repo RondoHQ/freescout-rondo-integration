@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.10] - 2026-09-02
+
+### Fixed
+
+- Load sandboxed sidebar documents only after the iframe is visible and report a render failure instead of silently displaying a blank panel.
+
 ## [1.0.9] - 2026-09-02
 
 ### Fixed

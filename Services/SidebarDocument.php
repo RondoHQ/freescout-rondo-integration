@@ -21,9 +21,10 @@ class SidebarDocument
         $accent = $this->settings->get('accent', '#0069AA');
         $surface = $this->settings->get('accent_surface', '#D9EDF7');
         $script = "(function(){var c=" . json_encode($channel) . ",o=" . json_encode($parent)
-            . ",t=null;function send(){clearTimeout(t);t=setTimeout(function(){var h=Math.ceil(document.documentElement.scrollHeight);"
-            . "if(Number.isFinite(h)){parent.postMessage({type:'rondo-sidebar-height',version:1,channel:c,height:Math.max(160,Math.min(1600,h))},o);}},40);}"
-            . "new ResizeObserver(send).observe(document.documentElement);addEventListener('load',send);send();}());";
+            . ",t=null;function send(){clearTimeout(t);t=setTimeout(function(){var b=document.body,r=b?b.getBoundingClientRect():null,"
+            . "h=Math.ceil(Math.max(document.documentElement.scrollHeight,b?b.scrollHeight:0)),rendered=!!(b&&r&&r.width>0&&b.children.length);"
+            . "if(Number.isFinite(h)){parent.postMessage({type:'rondo-sidebar-height',version:1,channel:c,height:Math.max(160,Math.min(1600,h)),rendered:rendered},o);}},40);}"
+            . "var z=new ResizeObserver(send);z.observe(document.documentElement);if(document.body){z.observe(document.body);}addEventListener('load',send);send();}());";
         $csp = "default-src 'none'; script-src 'nonce-" . $nonce . "'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'";
         $document = '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'
             . htmlspecialchars($csp, ENT_QUOTES, 'UTF-8') . '"><meta name="viewport" content="width=device-width,initial-scale=1">'
