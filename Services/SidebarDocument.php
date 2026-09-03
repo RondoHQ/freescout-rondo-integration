@@ -24,7 +24,7 @@ class SidebarDocument
         $document = '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'
             . htmlspecialchars($csp, ENT_QUOTES, 'UTF-8') . '"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<style>:root{--rondo-accent:' . htmlspecialchars($accent, ENT_QUOTES, 'UTF-8') . ';--rondo-accent-surface:' . htmlspecialchars($surface, ENT_QUOTES, 'UTF-8')
-            . ';color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:10px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#333;background:#fff}a{color:var(--rondo-accent);font-weight:600}details{border-top:1px solid #ddd;padding:8px 0}summary{cursor:pointer;color:var(--rondo-accent)}.rondo-highlight{background:var(--rondo-accent-surface);padding:8px;border-radius:4px}</style>'
+            . ';color-scheme:light}' . $this->styles() . '</style>'
             . '</head><body data-rondo-channel="' . htmlspecialchars($channel, ENT_QUOTES, 'UTF-8') . '" data-rondo-parent-origin="' . htmlspecialchars($parent, ENT_QUOTES, 'UTF-8') . '">'
             . $markup . '<script src="' . htmlspecialchars($scriptUrl, ENT_QUOTES, 'UTF-8') . '"></script></body></html>';
         return ['srcdoc' => $document, 'channel' => $channel];
@@ -36,7 +36,7 @@ class SidebarDocument
         libxml_use_internal_errors(true);
         $document->loadHTML('<?xml encoding="utf-8" ?><div id="rondo-root">' . (string) $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
-        $blocked = ['script', 'style', 'form', 'input', 'button', 'textarea', 'select', 'iframe', 'frame', 'object', 'embed', 'base', 'meta', 'link', 'svg', 'math', 'video', 'audio', 'source'];
+        $blocked = ['script', 'style', 'form', 'input', 'textarea', 'iframe', 'frame', 'object', 'embed', 'base', 'meta', 'link', 'svg', 'math', 'video', 'audio', 'source'];
         foreach ($blocked as $tag) {
             $nodes = [];
             foreach ($document->getElementsByTagName($tag) as $node) {
@@ -104,6 +104,54 @@ class SidebarDocument
     private function allowedImage($url)
     {
         return preg_match('#^data:image/(png|gif|jpe?g|webp);base64,[a-z0-9+/=]+$#i', $url) === 1;
+    }
+
+    private function styles()
+    {
+        return <<<'CSS'
+*{box-sizing:border-box}
+body{margin:0;padding:12px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#293946;background:#fff}
+a{color:var(--rondo-accent);font-weight:600;text-decoration:none}
+a:hover{text-decoration:underline}
+[hidden]{display:none!important}
+.rondo-profile-choice{margin-bottom:12px;padding:10px;border:1px solid #d8e0e6;border-radius:7px;background:#f7f9fb}
+.rondo-profile-choice label{display:block;margin-bottom:5px;color:#677b8d;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.rondo-profile-choice select{display:block;width:100%;min-height:36px;padding:6px 30px 6px 9px;border:1px solid #b9c6cf;border-radius:5px;background:#fff;color:#293946;font:inherit}
+.rondo-profile-choice p{margin:6px 0 0;color:#677b8d;font-size:12px}
+.rondo-sidebar{min-width:0}
+.rondo-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;padding:9px 10px;border-radius:5px;background:#eef2f5}
+.rondo-heading>strong{font-size:14px}
+.rondo-mailbox-badge,.rondo-badge{display:inline-flex;align-items:center;border-radius:999px;font-size:11px;font-weight:600;line-height:1.25}
+.rondo-mailbox-badge{padding:4px 8px;color:var(--rondo-accent);background:#fff}
+.rondo-highlight{padding:12px;border:1px solid #d8e0e6;border-radius:7px;background:var(--rondo-accent-surface)}
+.rondo-highlight p{margin:0}
+.rondo-badge{padding:3px 7px}
+.rondo-badge+.rondo-badge{margin-left:4px}
+.rondo-badge--success{color:#176a43;background:#e7f6ed}
+.rondo-badge--warning{color:#87500a;background:#fff4df}
+.rondo-badge--muted{color:#536878;background:#eef2f5}
+.rondo-alert{margin-top:9px;padding:10px 11px;border-left:3px solid #c07a17;background:#fff4df}
+.rondo-alert h3{margin:0 0 5px;color:#87500a;font-size:13px}
+.rondo-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:11px;border-bottom:1px solid #d8e0e6}
+.rondo-tab{min-height:40px;padding:8px 3px;border:0;border-bottom:2px solid transparent;background:transparent;color:#677b8d;cursor:pointer;font:inherit;font-size:12px}
+.rondo-tab:hover{color:var(--rondo-accent)}
+.rondo-tab.is-active,.rondo-tab[aria-selected="true"]{border-bottom-color:var(--rondo-accent);color:var(--rondo-accent);font-weight:600}
+.rondo-tab:focus-visible{outline:2px solid var(--rondo-accent);outline-offset:-2px}
+.rondo-tab-panel{min-width:0}
+.rondo-section{padding:11px 2px;border-bottom:1px solid #d8e0e6}
+.rondo-section h3{margin:0 0 7px;color:#677b8d;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.rondo-rows{display:grid;grid-template-columns:minmax(82px,94px) minmax(0,1fr);gap:0 9px;margin:0}
+.rondo-rows dt,.rondo-rows dd{min-width:0;margin:0;padding:4px 0;overflow-wrap:anywhere}
+.rondo-rows dt{color:#677b8d}
+.rondo-rows dd{font-weight:600}
+.rondo-alert .rondo-rows{grid-template-columns:minmax(78px,92px) minmax(0,1fr)}
+.rondo-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;padding-top:12px}
+.rondo-action{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px;border:1px solid var(--rondo-accent);border-radius:5px}
+.rondo-action--primary{color:#fff;background:var(--rondo-accent)}
+.rondo-action--primary:hover{color:#fff}
+.rondo-note{margin:9px 2px 0;color:#7b8d9b;font-size:11px}
+@media(max-width:310px){body{padding:9px}.rondo-highlight{padding:11px 9px}.rondo-rows,.rondo-alert .rondo-rows{grid-template-columns:minmax(70px,82px) minmax(0,1fr)}}
+CSS;
     }
 
     private function origin($url)

@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.0] - 2026-09-03
+
+### Added
+
+- Present live Rondo member data in compact member, contact and process tabs based on the configured club colors.
+- Support the existing multi-profile selector inside the sandboxed sidebar document.
+
+### Changed
+
+- Replace the raw accordion layout with a responsive card, status badges, contribution alert and a clear Rondo action.
+
 ## [1.2.0] - 2026-09-02
 
 ### Added

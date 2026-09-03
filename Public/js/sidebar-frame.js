@@ -28,6 +28,45 @@
         }, 40);
     }
 
+    function selectProfile(select) {
+        var panels = document.querySelectorAll('[data-rondo-profile-panel]');
+        Array.prototype.forEach.call(panels, function (panel) {
+            panel.hidden = panel.id !== select.value;
+        });
+        sendHeight();
+    }
+
+    function selectTab(tab) {
+        var card = tab.closest('[data-rondo-card]');
+        var selected = tab.getAttribute('data-rondo-tab');
+        if (!card || !selected) {
+            return;
+        }
+        Array.prototype.forEach.call(card.querySelectorAll('[data-rondo-tab]'), function (item) {
+            var active = item === tab;
+            item.classList.toggle('is-active', active);
+            item.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        Array.prototype.forEach.call(card.querySelectorAll('[data-rondo-tab-panel]'), function (panel) {
+            var active = panel.getAttribute('data-rondo-tab-panel') === selected;
+            panel.classList.toggle('is-active', active);
+            panel.hidden = !active;
+        });
+        sendHeight();
+    }
+
+    document.addEventListener('change', function (event) {
+        if (event.target && event.target.matches('[data-rondo-profile-switcher]')) {
+            selectProfile(event.target);
+        }
+    });
+    document.addEventListener('click', function (event) {
+        var tab = event.target && event.target.closest('[data-rondo-tab]');
+        if (tab) {
+            selectTab(tab);
+        }
+    });
+
     var observer = new ResizeObserver(sendHeight);
     observer.observe(document.documentElement);
     observer.observe(body);
