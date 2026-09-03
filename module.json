@@ -3,7 +3,7 @@
     "alias": "rondointegration",
     "description": "Secure Rondo sign-in, managed mailbox access and live conversation context for FreeScout.",
     "img": "/modules/rondointegration/img/rondo-integration.png",
-    "version": "1.11.0",
+    "version": "1.12.0",
     "author": "RondoHQ",
     "authorUrl": "https://rondo.club",
     "detailsUrl": "https://github.com/RondoHQ/freescout-rondo-integration",

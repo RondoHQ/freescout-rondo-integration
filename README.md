@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.11.0
+export RONDO_MODULE_VERSION=v1.12.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -36,8 +36,8 @@ Select the active mailboxes in which the sidebar should appear, then verify OIDC
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.11.0 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.11.0 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.12.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.12.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
