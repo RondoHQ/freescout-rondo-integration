@@ -19,7 +19,7 @@ class SidebarController extends Controller
     public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails, SettingsService $settings, SportlinkRelationCodeExtractor $relationCodes)
     {
         $request->validate(['conversation_id' => 'required|integer|min:1']);
-        $conversation = Conversation::with(['customer.emails'])->findOrFail((int) $request->conversation_id);
+        $conversation = Conversation::with(['customer.emails', 'mailbox'])->findOrFail((int) $request->conversation_id);
         $agent = auth()->user();
         if (!$agent || !$agent->can('view', $conversation)) {
             abort(403);
@@ -35,25 +35,25 @@ class SidebarController extends Controller
         if (!$binding) {
             return response()->json(['status' => 'unauthorized', 'message' => 'Sign in with Rondo to view member context.'], 403);
         }
-        $payload = [
-            'version' => 1,
-            'mailboxKey' => $mapping ? $mapping->stable_key : 'basis',
-            'conversationId' => (int) $conversation->id,
-            'conversationNumber' => (int) $conversation->number,
-            'customerId' => (int) $conversation->customer_id,
-            'customerEmails' => $emails->fromCustomer($conversation->customer),
-            'agent' => [
-                'freescoutUserId' => (int) $agent->id,
-                'issuer' => $binding->issuer,
-                'subject' => $binding->subject,
-            ],
-        ];
         $firstIncomingThread = $conversation->threads()
             ->where('type', Thread::TYPE_CUSTOMER)
             ->where('state', Thread::STATE_PUBLISHED)
             ->orderBy('created_at', 'asc')
             ->orderBy('id', 'asc')
             ->first();
+        $payload = [
+            'version' => 1,
+            'mailboxKey' => $mapping ? $mapping->stable_key : 'basis',
+            'conversationId' => (int) $conversation->id,
+            'conversationNumber' => (int) $conversation->number,
+            'customerId' => (int) $conversation->customer_id,
+            'customerEmails' => $emails->forConversation($conversation->customer, $firstIncomingThread, $conversation->mailbox),
+            'agent' => [
+                'freescoutUserId' => (int) $agent->id,
+                'issuer' => $binding->issuer,
+                'subject' => $binding->subject,
+            ],
+        ];
         if ($firstIncomingThread) {
             $relationCode = $relationCodes->extract(
                 $conversation->subject,
