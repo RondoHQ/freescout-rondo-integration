@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## [1.8.0] - 2026-09-03
+
+### Added
+
+- Match conversations whose first incoming message comes from the active mailbox's exact email domain to the message's `To` recipients in both the sidebar and activity delivery.
+
+### Security
+
+- Exclude the internal sender and every configured address of the active FreeScout mailbox before sending recipient addresses to Rondo for exact matching.
+
 ## [1.7.0] - 2026-09-03
 
 ### Added

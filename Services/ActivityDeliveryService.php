@@ -68,7 +68,7 @@ class ActivityDeliveryService
 
     private function deliver($row)
     {
-        $conversation = Conversation::with(['customer.emails'])->find((int) $row->conversation_id);
+        $conversation = Conversation::with(['customer.emails', 'mailbox'])->find((int) $row->conversation_id);
         if (!$conversation || !$conversation->customer) {
             throw new \RuntimeException('conversation_unavailable');
         }
@@ -79,6 +79,13 @@ class ActivityDeliveryService
         if (!$mapping) {
             return null;
         }
+
+        $firstIncomingThread = $conversation->threads()
+            ->where('type', Thread::TYPE_CUSTOMER)
+            ->where('state', Thread::STATE_PUBLISHED)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->first();
 
         $createdAt = strtotime((string) $conversation->created_at);
         $actor = null;
@@ -120,7 +127,7 @@ class ActivityDeliveryService
             'mailboxKey' => (string) $mapping->stable_key,
             'conversationId' => (int) $conversation->id,
             'customerId' => (int) $conversation->customer_id,
-            'customerEmails' => $this->emails->fromCustomer($conversation->customer),
+            'customerEmails' => $this->emails->forConversation($conversation->customer, $firstIncomingThread, $conversation->mailbox),
             'subject' => $this->plainSubject($conversation->subject),
             'createdAt' => gmdate(DATE_ATOM, $createdAt),
         ];
