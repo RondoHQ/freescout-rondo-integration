@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [1.6.0] - 2026-09-03
+
+### Added
+
+- Allow only exact HTTPS Sportlink member-detail links supplied by Rondo, rendered as a secondary sidebar action.
+
+### Changed
+
+- Reduce the space above the Rondo card while retaining compact horizontal padding.
+- Present Rondo's process information under the clearer **Acties** tab label.
+
 ## [1.5.0] - 2026-09-03
 
 ### Added

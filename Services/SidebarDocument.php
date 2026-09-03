@@ -88,9 +88,21 @@ class SidebarDocument
         if (preg_match('/^(mailto|tel):[^\x00-\x20]+$/i', $url)) {
             return true;
         }
-        $base = parse_url($this->settings->baseUrl());
         $target = parse_url($url);
-        if (!is_array($base) || !is_array($target) || empty($target['scheme']) || empty($target['host'])) {
+        if (!is_array($target) || empty($target['scheme']) || empty($target['host'])
+            || isset($target['user']) || isset($target['pass'])
+        ) {
+            return false;
+        }
+        if (strtolower($target['scheme']) === 'https'
+            && strtolower($target['host']) === 'club.sportlink.com'
+            && !isset($target['port'])
+            && empty($target['query']) && empty($target['fragment'])
+        ) {
+            return preg_match('#^/member/member-details/[A-Z0-9]{4,20}/general/?$#', isset($target['path']) ? $target['path'] : '') === 1;
+        }
+        $base = parse_url($this->settings->baseUrl());
+        if (!is_array($base)) {
             return false;
         }
         $path = isset($target['path']) ? $target['path'] : '/';
@@ -110,7 +122,7 @@ class SidebarDocument
     {
         return <<<'CSS'
 *{box-sizing:border-box}
-body{margin:0;padding:12px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#293946;background:#fff}
+body{margin:0;padding:4px 12px 12px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#293946;background:#fff}
 a{color:var(--rondo-accent);font-weight:600;text-decoration:none}
 a:hover{text-decoration:underline}
 [hidden]{display:none!important}
@@ -149,8 +161,9 @@ a:hover{text-decoration:underline}
 .rondo-action{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px;border:1px solid var(--rondo-accent);border-radius:5px}
 .rondo-action--primary{color:#fff;background:var(--rondo-accent)}
 .rondo-action--primary:hover{color:#fff}
+.rondo-action--secondary{color:var(--rondo-accent);background:#fff}
 .rondo-note{margin:9px 2px 0;color:#7b8d9b;font-size:11px}
-@media(max-width:310px){body{padding:9px}.rondo-highlight{padding:11px 9px}.rondo-rows,.rondo-alert .rondo-rows{grid-template-columns:minmax(70px,82px) minmax(0,1fr)}}
+@media(max-width:310px){body{padding:4px 9px 9px}.rondo-highlight{padding:11px 9px}.rondo-rows,.rondo-alert .rondo-rows{grid-template-columns:minmax(70px,82px) minmax(0,1fr)}}
 CSS;
     }
 
