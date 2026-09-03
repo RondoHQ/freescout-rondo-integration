@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## [1.11.0] - 2026-09-03
+
+### Added
+
+- Send the original sender's full display name to Rondo so shared email addresses can prefer the matching person.
+
+### Changed
+
+- Display mobile WhatsApp actions as accessible WhatsApp icons.
+
 ## [1.10.0] - 2026-09-03
 
 ### Added

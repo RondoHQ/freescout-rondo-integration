@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.10.0', $manifest['version']);
+        $this->assertSame('1.11.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -172,6 +172,8 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString('mailboxDomainRecipients($firstIncomingThread, $mailbox)', $emails);
         $this->assertStringContainsString('getToArray()', $emails);
         $this->assertStringContainsString('getEmails()', $emails);
+        $this->assertStringContainsString("\$payload['fromName']", $controller);
+        $this->assertStringContainsString('getFullName()', $controller);
     }
 
     public function testMailboxDomainConversationsCanSwitchTheirNativeFreeScoutCustomer()
