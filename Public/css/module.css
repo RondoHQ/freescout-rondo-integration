@@ -12,6 +12,9 @@
 .rondo-sidebar-actions {
     margin-top: 6px;
 }
+.conv-sidebar-block.rondo-sidebar {
+    margin-top: 4px;
+}
 .rondo-appearance-preview {
     --rondo-preview-accent: #0069aa;
     --rondo-preview-surface: #d9edf7;

@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.5.0', $manifest['version']);
+        $this->assertSame('1.6.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -137,6 +137,16 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("event.target.closest('[data-rondo-tab]')", $javascript);
         $this->assertStringContainsString("card.querySelectorAll('[data-rondo-tab-panel]')", $javascript);
         $this->assertStringContainsString("querySelectorAll('[data-rondo-profile-panel]')", $javascript);
+    }
+
+    public function testSidebarUsesCompactPlacementAndASecondaryActionStyle()
+    {
+        $moduleCss = file_get_contents(dirname(__DIR__) . '/Public/css/module.css');
+        $document = file_get_contents(dirname(__DIR__) . '/Services/SidebarDocument.php');
+
+        $this->assertStringContainsString('.conv-sidebar-block.rondo-sidebar', $moduleCss);
+        $this->assertStringContainsString('margin-top: 4px;', $moduleCss);
+        $this->assertStringContainsString('.rondo-action--secondary', $document);
     }
 
     public function testConversationActivitiesUseABoundedScheduledDeliveryQueue()
