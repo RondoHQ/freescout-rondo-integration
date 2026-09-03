@@ -25,6 +25,7 @@ use Modules\RondoIntegration\Services\OidcClient;
 use Modules\RondoIntegration\Services\RondoApiClient;
 use Modules\RondoIntegration\Services\SettingsService;
 use Modules\RondoIntegration\Services\SidebarDocument;
+use Modules\RondoIntegration\Services\SportlinkRelationCodeExtractor;
 
 class RondoIntegrationServiceProvider extends ServiceProvider
 {
@@ -44,6 +45,7 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(BindingService::class);
         $this->app->singleton(EnvironmentMappingService::class);
         $this->app->singleton(SidebarDocument::class);
+        $this->app->singleton(SportlinkRelationCodeExtractor::class);
         $this->app->singleton(ActivityQueueService::class);
         $this->app->singleton(CustomerEmailService::class);
         $this->app->singleton(ActivityDeliveryPolicy::class);

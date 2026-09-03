@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## [1.7.0] - 2026-09-03
+
+### Added
+
+- Match Sportlink transfer-request conversations to a Rondo person by the validated relation code in the first incoming message.
+
+### Security
+
+- Send only the extracted KNVB ID to Rondo, never the Sportlink message body or its other personal details.
+
 ## [1.6.0] - 2026-09-03
 
 ### Added

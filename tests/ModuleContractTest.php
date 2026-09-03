@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.6.0', $manifest['version']);
+        $this->assertSame('1.7.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -147,6 +147,18 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString('.conv-sidebar-block.rondo-sidebar', $moduleCss);
         $this->assertStringContainsString('margin-top: 4px;', $moduleCss);
         $this->assertStringContainsString('.rondo-action--secondary', $document);
+    }
+
+    public function testSidebarSendsOnlyTheValidatedSportlinkPersonReference()
+    {
+        $controller = file_get_contents(dirname(__DIR__) . '/Http/Controllers/SidebarController.php');
+
+        $this->assertStringContainsString("Thread::TYPE_CUSTOMER", $controller);
+        $this->assertStringContainsString("Thread::STATE_PUBLISHED", $controller);
+        $this->assertStringContainsString("'personReference'", $controller);
+        $this->assertStringContainsString("'source' => 'sportlink_transfer_request'", $controller);
+        $this->assertStringNotContainsString("'messageHtml'", $controller);
+        $this->assertStringNotContainsString("'messageBody'", $controller);
     }
 
     public function testConversationActivitiesUseABoundedScheduledDeliveryQueue()
