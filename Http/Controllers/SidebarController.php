@@ -3,6 +3,7 @@
 namespace Modules\RondoIntegration\Http\Controllers;
 
 use App\Conversation;
+use App\Thread;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -11,10 +12,11 @@ use Modules\RondoIntegration\Services\CustomerEmailService;
 use Modules\RondoIntegration\Services\RondoApiClient;
 use Modules\RondoIntegration\Services\SettingsService;
 use Modules\RondoIntegration\Services\SidebarDocument;
+use Modules\RondoIntegration\Services\SportlinkRelationCodeExtractor;
 
 class SidebarController extends Controller
 {
-    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails, SettingsService $settings)
+    public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails, SettingsService $settings, SportlinkRelationCodeExtractor $relationCodes)
     {
         $request->validate(['conversation_id' => 'required|integer|min:1']);
         $conversation = Conversation::with(['customer.emails'])->findOrFail((int) $request->conversation_id);
@@ -46,6 +48,26 @@ class SidebarController extends Controller
                 'subject' => $binding->subject,
             ],
         ];
+        $firstIncomingThread = $conversation->threads()
+            ->where('type', Thread::TYPE_CUSTOMER)
+            ->where('state', Thread::STATE_PUBLISHED)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->first();
+        if ($firstIncomingThread) {
+            $relationCode = $relationCodes->extract(
+                $conversation->subject,
+                $firstIncomingThread->from,
+                $firstIncomingThread->getBodyOriginal()
+            );
+            if ($relationCode) {
+                $payload['personReference'] = [
+                    'type' => 'knvb_id',
+                    'value' => $relationCode,
+                    'source' => 'sportlink_transfer_request',
+                ];
+            }
+        }
         try {
             $response = $rondo->sidebar($payload);
             if (empty($response['html']) || !is_string($response['html'])) {
