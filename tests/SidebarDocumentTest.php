@@ -38,6 +38,9 @@ class SidebarDocumentTest extends TestCase
         $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{32}$/', $result['channel']);
         $this->assertStringContainsString('.rondo-tabs{', $result['srcdoc']);
         $this->assertStringContainsString('.rondo-alert{', $result['srcdoc']);
+        $this->assertStringContainsString('.rondo-finance-summary{', $result['srcdoc']);
+        $this->assertStringContainsString('.rondo-invoice{display:grid;', $result['srcdoc']);
+        $this->assertStringNotContainsString('.rondo-invoice{margin-top:8px;padding-top:8px;border-top:', $result['srcdoc']);
         $this->assertStringContainsString('.rondo-inline-action{', $result['srcdoc']);
         $this->assertStringContainsString('.rondo-inline-action--whatsapp{', $result['srcdoc']);
         $this->assertStringContainsString('body{margin:0;padding:4px 12px 12px', $result['srcdoc']);

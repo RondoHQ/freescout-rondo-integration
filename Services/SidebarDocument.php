@@ -149,10 +149,21 @@ a:hover{text-decoration:underline}
 .rondo-badge--success{color:#176a43;background:#e7f6ed}
 .rondo-badge--warning{color:#87500a;background:#fff4df}
 .rondo-badge--muted{color:#536878;background:#eef2f5}
-.rondo-alert{margin-top:9px;padding:10px 11px;border-left:3px solid #c07a17;background:#fff4df}
-.rondo-alert h3{margin:0 0 5px;color:#87500a;font-size:13px}
-.rondo-invoice{margin-top:8px;padding-top:8px;border-top:1px solid rgba(135,80,10,.2)}
-.rondo-invoice-link{display:inline-block;margin-bottom:2px}
+.rondo-alert{margin-top:9px;padding:16px;border-radius:7px;background:#fff4df}
+.rondo-finance-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.rondo-alert h3{margin:2px 0 0;color:#87500a;font-size:15px;line-height:1.25;white-space:nowrap}
+.rondo-finance-total{display:flex;flex:0 0 auto;flex-direction:column;align-items:flex-end;text-align:right}
+.rondo-finance-total strong{color:#293946;font-size:20px;font-variant-numeric:tabular-nums;line-height:1.05}
+.rondo-finance-total span{margin-top:4px;color:#677b8d;font-size:11px;line-height:1.2}
+.rondo-invoice-list{display:grid;gap:7px}
+.rondo-invoice{display:grid;grid-template-columns:minmax(0,1fr) auto 14px;align-items:center;gap:9px;padding:12px 10px 12px 12px;border-radius:6px;background:rgba(255,255,255,.72);color:#293946;font-weight:400;text-decoration:none}
+.rondo-invoice:hover{background:#fff;text-decoration:none}
+.rondo-invoice:focus-visible{outline:2px solid var(--rondo-accent);outline-offset:1px}
+.rondo-invoice-copy{display:flex;min-width:0;flex-direction:column;gap:3px}
+.rondo-invoice-copy strong{overflow:hidden;color:var(--rondo-accent);font-size:13px;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+.rondo-invoice-copy span{color:#677b8d;font-size:11px;line-height:1.25}
+.rondo-invoice-amount{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rondo-invoice-chevron{color:#677b8d;font-size:20px;font-weight:400;line-height:1}
 .rondo-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:11px;border-bottom:1px solid #d8e0e6}
 .rondo-tab{min-height:40px;padding:8px 3px;border:0;border-bottom:2px solid transparent;background:transparent;color:#677b8d;cursor:pointer;font:inherit;font-size:12px}
 .rondo-tab:hover{color:var(--rondo-accent)}
@@ -177,7 +188,7 @@ a:hover{text-decoration:underline}
 .rondo-action--primary:hover{color:#fff}
 .rondo-action--secondary{color:var(--rondo-accent);background:#fff}
 .rondo-note{margin:9px 2px 0;color:#7b8d9b;font-size:11px}
-@media(max-width:310px){body{padding:4px 9px 9px}.rondo-highlight{padding:11px 9px}.rondo-rows,.rondo-alert .rondo-rows{grid-template-columns:minmax(70px,82px) minmax(0,1fr)}}
+@media(max-width:310px){body{padding:4px 9px 9px}.rondo-highlight{padding:11px 9px}.rondo-alert{padding:13px}.rondo-finance-summary{gap:9px}.rondo-alert h3{font-size:14px}.rondo-finance-total strong{font-size:18px}.rondo-invoice{gap:7px;padding:10px 8px 10px 10px}.rondo-rows,.rondo-alert .rondo-rows{grid-template-columns:minmax(70px,82px) minmax(0,1fr)}}
 CSS;
     }
 

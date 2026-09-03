@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.12.0] - 2026-09-03
+
+### Changed
+
+- Present open contribution invoices as balanced, fully clickable rows without duplicate borders, repeated total labels or due dates.
+
 ## [1.11.0] - 2026-09-03
 
 ### Added
