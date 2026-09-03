@@ -55,6 +55,13 @@ class SidebarController extends Controller
             ],
         ];
         if ($firstIncomingThread) {
+            $sender = $firstIncomingThread->getCreatedBy();
+            if ($sender && method_exists($sender, 'getFullName')) {
+                $fromName = trim(strip_tags((string) $sender->getFullName()));
+                if ($fromName !== '') {
+                    $payload['fromName'] = mb_substr($fromName, 0, 200);
+                }
+            }
             $relationCode = $relationCodes->extract(
                 $conversation->subject,
                 $firstIncomingThread->from,
