@@ -1,6 +1,6 @@
 # Rondo Integration for FreeScout
 
-Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed Ledenadministratie and Contributie mailbox access, and live Rondo context in a sandboxed conversation sidebar. Administrators select independently in which active mailboxes the sidebar appears; mailbox selection never grants access. When a customer email belongs to multiple accessible Rondo profiles, the iframe offers a profile selector and shows one full profile card at a time. If the first incoming message comes from the active mailbox's exact email domain, the module matches its `To` recipients after excluding the sender and every address of that mailbox. Sportlink transfer requests from the expected sender can be matched by the unique relation code in the first incoming message, without sending the message body to Rondo. Rondo may add an exact `club.sportlink.com/member/member-details/{KNVB-ID}/general` action for authorized membership-administration and finance users; every other external HTTP link is removed by the module sanitizer.
+Rondo Integration is the first-party FreeScout module for Rondo Club. It provides secure OpenID Connect sign-in, one-to-one subject binding, managed Ledenadministratie and Contributie mailbox access, and live Rondo context in a sandboxed conversation sidebar. Administrators select independently in which active mailboxes the sidebar appears; mailbox selection never grants access. When a customer email belongs to multiple accessible Rondo profiles, the iframe offers a profile selector and shows one full profile card at a time. If an incoming message comes from the active mailbox's exact email domain and has exactly one eligible `To` recipient, the module makes that existing FreeScout customer the conversation customer, removes the customer from CC and preserves the internal sender in CC. This also makes FreeScout's native customer header and previous conversations match the Rondo sidebar. Ambiguous recipients and missing customers are left unchanged. Sportlink transfer requests from the expected sender can be matched by the unique relation code in the first incoming message, without sending the message body to Rondo. Rondo may add an exact `club.sportlink.com/member/member-details/{KNVB-ID}/general` action for authorized membership-administration and finance users; every other external HTTP link is removed by the module sanitizer.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.8.0
+export RONDO_MODULE_VERSION=v1.9.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -36,8 +36,8 @@ Select the active mailboxes in which the sidebar should appear, then verify OIDC
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.8.0 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.8.0 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.9.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.9.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
@@ -54,6 +54,13 @@ For a controlled manual run:
 
 ```sh
 php artisan rondo:deliver-activities --limit=25
+```
+
+An existing conversation can be previewed and repaired individually. The command never creates a customer and only operates in a mailbox where the Rondo sidebar is enabled:
+
+```sh
+php artisan rondo:reconcile-conversation-customer 123
+php artisan rondo:reconcile-conversation-customer 123 --apply
 ```
 
 ## Configuration precedence

@@ -8,14 +8,24 @@ class CustomerEmailService
 
     public function forConversation($customer, $firstIncomingThread, $mailbox)
     {
-        if (!$this->isMailboxDomainSender($firstIncomingThread, $mailbox)) {
+        $recipients = $this->mailboxDomainRecipients($firstIncomingThread, $mailbox);
+        if ($recipients === null) {
             return $this->fromCustomer($customer);
         }
 
-        $recipients = method_exists($firstIncomingThread, 'getToArray')
-            ? $this->normalized($firstIncomingThread->getToArray())
+        return $recipients;
+    }
+
+    public function mailboxDomainRecipients($thread, $mailbox)
+    {
+        if (!$this->isMailboxDomainSender($thread, $mailbox)) {
+            return null;
+        }
+
+        $recipients = method_exists($thread, 'getToArray')
+            ? $this->normalized($thread->getToArray())
             : [];
-        $excluded = [$firstIncomingThread->from];
+        $excluded = [$thread->from];
         if ($mailbox && method_exists($mailbox, 'getEmails')) {
             $excluded = array_merge($excluded, $mailbox->getEmails());
         }

@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [1.9.0] - 2026-09-03
+
+### Added
+
+- Make the unique existing `To` recipient the FreeScout conversation customer when mail originates from the active mailbox's exact domain.
+- Add a preview-first command for repairing one existing conversation after installation.
+
+### Security
+
+- Leave conversations unchanged when the recipient is missing or ambiguous, never create a customer automatically, and limit switching to mailboxes where the Rondo sidebar is enabled.
+- Keep the actual internal sender on CC while removing the new primary customer from CC.
+
 ## [1.8.0] - 2026-09-03
 
 ### Added

@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.8.0', $manifest['version']);
+        $this->assertSame('1.9.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -169,9 +169,25 @@ class ModuleContractTest extends TestCase
 
         $this->assertStringContainsString('forConversation($conversation->customer, $firstIncomingThread, $conversation->mailbox)', $controller);
         $this->assertStringContainsString('forConversation($conversation->customer, $firstIncomingThread, $conversation->mailbox)', $delivery);
-        $this->assertStringContainsString('isMailboxDomainSender($firstIncomingThread, $mailbox)', $emails);
+        $this->assertStringContainsString('mailboxDomainRecipients($firstIncomingThread, $mailbox)', $emails);
         $this->assertStringContainsString('getToArray()', $emails);
         $this->assertStringContainsString('getEmails()', $emails);
+    }
+
+    public function testMailboxDomainConversationsCanSwitchTheirNativeFreeScoutCustomer()
+    {
+        $provider = file_get_contents(dirname(__DIR__) . '/Providers/RondoIntegrationServiceProvider.php');
+        $service = file_get_contents(dirname(__DIR__) . '/Services/ConversationCustomerService.php');
+        $command = file_get_contents(dirname(__DIR__) . '/Console/ReconcileConversationCustomerCommand.php');
+
+        $this->assertStringContainsString("addFilter('conversation.created_by_customer'", $provider);
+        $this->assertStringContainsString("addFilter('conversation.customer_replied'", $provider);
+        $this->assertStringContainsString('sidebarEnabledForMailbox($conversation->mailbox_id)', $provider);
+        $this->assertStringContainsString('Customer::getByEmail($email)', $service);
+        $this->assertStringContainsString("count(\$recipients) !== 1", $service);
+        $this->assertStringContainsString("{conversation} {--apply}", $command);
+        $this->assertStringContainsString("enqueue('conversation_customer_changed'", $command);
+        $this->assertStringNotContainsString('Customer::create(', $service);
     }
 
     public function testConversationActivitiesUseABoundedScheduledDeliveryQueue()

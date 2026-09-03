@@ -10,6 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Modules\RondoIntegration\Console\DeliverActivitiesCommand;
 use Modules\RondoIntegration\Console\IntegrationUpdateCommand;
 use Modules\RondoIntegration\Console\ReconcileAccessCommand;
+use Modules\RondoIntegration\Console\ReconcileConversationCustomerCommand;
 use Modules\RondoIntegration\Services\ActivityDeliveryPolicy;
 use Modules\RondoIntegration\Services\ActivityDeliveryService;
 use Modules\RondoIntegration\Services\ActivityQueueService;
@@ -18,6 +19,7 @@ use Modules\RondoIntegration\Services\BindingService;
 use Modules\RondoIntegration\Services\EnvironmentMappingService;
 use Modules\RondoIntegration\Services\BoundedHttpClient;
 use Modules\RondoIntegration\Services\CustomerEmailService;
+use Modules\RondoIntegration\Services\ConversationCustomerService;
 use Modules\RondoIntegration\Services\HmacSigner;
 use Modules\RondoIntegration\Services\MailboxAccessService;
 use Modules\RondoIntegration\Services\MappingImpactService;
@@ -48,9 +50,15 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(SportlinkRelationCodeExtractor::class);
         $this->app->singleton(ActivityQueueService::class);
         $this->app->singleton(CustomerEmailService::class);
+        $this->app->singleton(ConversationCustomerService::class);
         $this->app->singleton(ActivityDeliveryPolicy::class);
         $this->app->singleton(ActivityDeliveryService::class);
-        $this->commands([IntegrationUpdateCommand::class, ReconcileAccessCommand::class, DeliverActivitiesCommand::class]);
+        $this->commands([
+            IntegrationUpdateCommand::class,
+            ReconcileAccessCommand::class,
+            ReconcileConversationCustomerCommand::class,
+            DeliverActivitiesCommand::class,
+        ]);
     }
 
     public function boot()
@@ -63,6 +71,26 @@ class RondoIntegrationServiceProvider extends ServiceProvider
 
     private function hooks()
     {
+        $reconcileConversationCustomer = function ($conversation, $thread) {
+            try {
+                if (app(SettingsService::class)->sidebarEnabledForMailbox($conversation->mailbox_id)) {
+                    app(ConversationCustomerService::class)->reconcile($conversation, $thread, $conversation->mailbox);
+                }
+            } catch (\Throwable $failure) {
+                try {
+                    \Log::warning('Rondo conversation customer reconciliation failed.', [
+                        'conversation_id' => (int) ($conversation->id ?? 0),
+                        'exception' => get_class($failure),
+                    ]);
+                } catch (\Throwable $loggingFailure) {
+                    // Reconciliation failures must not block normal FreeScout conversation handling.
+                }
+            }
+            return $conversation;
+        };
+        \Eventy::addFilter('conversation.created_by_customer', $reconcileConversationCustomer, 20, 3);
+        \Eventy::addFilter('conversation.customer_replied', $reconcileConversationCustomer, 20, 3);
+
         \Eventy::addFilter('stylesheets', function ($styles) {
             $styles[] = \Module::getPublicPath(self::MODULE) . '/css/module.css';
             return $styles;
