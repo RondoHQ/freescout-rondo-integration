@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [1.10.0] - 2026-09-03
+
+### Added
+
+- Style validated WhatsApp actions next to mobile telephone numbers in the live Rondo sidebar.
+- Present compact invoice details, linked Rondo relatives and teams, and volunteer-shift context supplied by Rondo.
+
+### Security
+
+- Allow only query-free `wa.me` links containing a valid 8-to-15-digit international telephone number.
+
 ## [1.9.0] - 2026-09-03
 
 ### Added

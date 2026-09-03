@@ -101,6 +101,13 @@ class SidebarDocument
         ) {
             return preg_match('#^/member/member-details/[A-Z0-9]{4,20}/general/?$#', isset($target['path']) ? $target['path'] : '') === 1;
         }
+        if (strtolower($target['scheme']) === 'https'
+            && strtolower($target['host']) === 'wa.me'
+            && !isset($target['port'])
+            && empty($target['query']) && empty($target['fragment'])
+        ) {
+            return preg_match('#^/\d{8,15}/?$#', isset($target['path']) ? $target['path'] : '') === 1;
+        }
         $base = parse_url($this->settings->baseUrl());
         if (!is_array($base)) {
             return false;
@@ -144,6 +151,8 @@ a:hover{text-decoration:underline}
 .rondo-badge--muted{color:#536878;background:#eef2f5}
 .rondo-alert{margin-top:9px;padding:10px 11px;border-left:3px solid #c07a17;background:#fff4df}
 .rondo-alert h3{margin:0 0 5px;color:#87500a;font-size:13px}
+.rondo-invoice{margin-top:8px;padding-top:8px;border-top:1px solid rgba(135,80,10,.2)}
+.rondo-invoice-link{display:inline-block;margin-bottom:2px}
 .rondo-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:11px;border-bottom:1px solid #d8e0e6}
 .rondo-tab{min-height:40px;padding:8px 3px;border:0;border-bottom:2px solid transparent;background:transparent;color:#677b8d;cursor:pointer;font:inherit;font-size:12px}
 .rondo-tab:hover{color:var(--rondo-accent)}
@@ -157,6 +166,7 @@ a:hover{text-decoration:underline}
 .rondo-rows dt{color:#677b8d}
 .rondo-rows dd{font-weight:600}
 .rondo-alert .rondo-rows{grid-template-columns:minmax(78px,92px) minmax(0,1fr)}
+.rondo-inline-action{display:inline-flex;margin-left:4px;padding:1px 5px;border:1px solid var(--rondo-accent);border-radius:4px;font-size:11px;white-space:nowrap}
 .rondo-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;padding-top:12px}
 .rondo-action{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px;border:1px solid var(--rondo-accent);border-radius:5px}
 .rondo-action--primary{color:#fff;background:var(--rondo-accent)}
