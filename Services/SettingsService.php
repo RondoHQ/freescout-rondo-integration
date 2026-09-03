@@ -4,6 +4,7 @@ namespace Modules\RondoIntegration\Services;
 
 use App\Option;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class SettingsService
 {
@@ -57,6 +58,9 @@ class SettingsService
             if (array_key_exists($key, $input)) {
                 $current[$key] = (bool) $input[$key];
             }
+        }
+        if (array_key_exists('sidebar_mailbox_ids', $input)) {
+            $current['sidebar_mailbox_ids'] = array_values(array_unique(array_map('intval', (array) $input['sidebar_mailbox_ids'])));
         }
 
         $this->validateAppearance($current);
@@ -122,6 +126,27 @@ class SettingsService
             return filter_var($value, FILTER_VALIDATE_BOOLEAN);
         }
         return (bool) $this->get('force_login', false);
+    }
+
+    public function sidebarMailboxIds()
+    {
+        $configured = $this->get('sidebar_mailbox_ids');
+        if (is_array($configured)) {
+            return array_values(array_unique(array_map('intval', $configured)));
+        }
+
+        return DB::table('rondo_mailbox_mappings')
+            ->where('state', 'active')
+            ->pluck('mailbox_id')
+            ->map(function ($id) { return (int) $id; })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function sidebarEnabledForMailbox($mailboxId)
+    {
+        return in_array((int) $mailboxId, $this->sidebarMailboxIds(), true);
     }
 
     public function customerVisibilityRestricted()

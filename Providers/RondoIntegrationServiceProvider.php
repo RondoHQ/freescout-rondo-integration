@@ -84,7 +84,7 @@ class RondoIntegrationServiceProvider extends ServiceProvider
             if (!auth()->check() || !auth()->user()->can('view', $conversation)) {
                 return;
             }
-            $active = DB::table('rondo_mailbox_mappings')->where('mailbox_id', $mailbox->id)->where('state', 'active')->exists();
+            $active = app(SettingsService::class)->sidebarEnabledForMailbox($mailbox->id);
             if ($active) {
                 echo view('rondointegration::partials.sidebar', ['conversation' => $conversation])->render();
             }

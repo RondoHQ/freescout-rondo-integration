@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.3.0', $manifest['version']);
+        $this->assertSame('1.5.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -79,6 +79,35 @@ class ModuleContractTest extends TestCase
         $this->assertStringNotContainsString('/sidebarwebhook/ajax', $routes);
     }
 
+    public function testClosedMailboxCatalogSupportsMembershipAndContributionPolicies()
+    {
+        $client = file_get_contents(dirname(__DIR__) . '/Services/RondoApiClient.php');
+
+        $this->assertStringContainsString("'ledenadministratie' => [", $client);
+        $this->assertStringContainsString("'sidebar_policy' => 'ledenadministratie.v2'", $client);
+        $this->assertStringContainsString("'contributie' => [", $client);
+        $this->assertStringContainsString("'required_capability' => 'financieel'", $client);
+        $this->assertStringContainsString("'sidebar_policy' => 'contributie.v1'", $client);
+    }
+
+    public function testSidebarMailboxSelectionIsSeparateFromManagedAccessMappings()
+    {
+        $provider = file_get_contents(dirname(__DIR__) . '/Providers/RondoIntegrationServiceProvider.php');
+        $controller = file_get_contents(dirname(__DIR__) . '/Http/Controllers/SidebarController.php');
+        $settings = file_get_contents(dirname(__DIR__) . '/Services/SettingsService.php');
+        $settingsController = file_get_contents(dirname(__DIR__) . '/Http/Controllers/SettingsController.php');
+        $view = file_get_contents(dirname(__DIR__) . '/Resources/views/settings/index.blade.php');
+        $client = file_get_contents(dirname(__DIR__) . '/Services/RondoApiClient.php');
+
+        $this->assertStringContainsString('sidebarEnabledForMailbox($mailbox->id)', $provider);
+        $this->assertStringContainsString('sidebarEnabledForMailbox($conversation->mailbox_id)', $controller);
+        $this->assertStringContainsString("\$mapping ? \$mapping->stable_key : 'basis'", $controller);
+        $this->assertStringContainsString('function sidebarMailboxIds()', $settings);
+        $this->assertStringContainsString("'sidebar_mailboxes' => 'nullable|array'", $settingsController);
+        $this->assertStringContainsString('name="sidebar_mailboxes[]"', $view);
+        $this->assertStringContainsString("hash_equals('basis.v1'", $client);
+    }
+
     public function testSidebarLoadsSrcdocOnlyAfterTheFrameIsVisible()
     {
         $javascript = file_get_contents(dirname(__DIR__) . '/Public/js/module.js');
@@ -107,6 +136,7 @@ class ModuleContractTest extends TestCase
         $this->assertStringContainsString("event.target.matches('[data-rondo-profile-switcher]')", $javascript);
         $this->assertStringContainsString("event.target.closest('[data-rondo-tab]')", $javascript);
         $this->assertStringContainsString("card.querySelectorAll('[data-rondo-tab-panel]')", $javascript);
+        $this->assertStringContainsString("querySelectorAll('[data-rondo-profile-panel]')", $javascript);
     }
 
     public function testConversationActivitiesUseABoundedScheduledDeliveryQueue()

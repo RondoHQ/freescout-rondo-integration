@@ -2,16 +2,37 @@
 
 All notable changes to this project are documented here.
 
-## [1.3.0] - 2026-09-03
+## [1.5.0] - 2026-09-03
 
 ### Added
 
 - Present live Rondo member data in compact member, contact and process tabs based on the configured club colors.
-- Support the existing multi-profile selector inside the sandboxed sidebar document.
 
 ### Changed
 
 - Replace the raw accordion layout with a responsive card, status badges, contribution alert and a clear Rondo action.
+
+## [1.4.0] - 2026-09-02
+
+### Added
+
+- Accept the closed `contributie.v1` mailbox policy, which requires Rondo's effective `financieel` capability.
+- Let administrators select every active FreeScout mailbox in which the Rondo sidebar should appear, independently of managed mailbox-access mappings.
+
+### Changed
+
+- Require `ledenadministratie.v2`, allowing Rondo to add live financial context only for the exact signed-in user when their separate finance permission allows it.
+- Use the generic `basis.v1` sidebar policy for selected mailboxes without a dedicated Rondo mapping.
+
+## [1.3.0] - 2026-09-02
+
+### Added
+
+- Switch between all accessible Rondo profiles that share a customer email address inside the existing sidebar iframe.
+
+### Changed
+
+- Preserve the server-rendered profile selector while continuing to strip inline scripts and event handlers.
 
 ## [1.2.0] - 2026-09-02
 

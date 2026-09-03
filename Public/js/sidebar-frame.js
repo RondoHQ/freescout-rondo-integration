@@ -29,6 +29,9 @@
     }
 
     function selectProfile(select) {
+        if (!/^rondo-profile-[0-9]+$/.test(select.value)) {
+            return;
+        }
         var panels = document.querySelectorAll('[data-rondo-profile-panel]');
         Array.prototype.forEach.call(panels, function (panel) {
             panel.hidden = panel.id !== select.value;

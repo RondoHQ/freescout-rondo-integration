@@ -7,7 +7,11 @@ class RondoApiClient
     const SUPPORTED_MAPPINGS = [
         'ledenadministratie' => [
             'required_capability' => 'ledenadministratie',
-            'sidebar_policy' => 'ledenadministratie.v1',
+            'sidebar_policy' => 'ledenadministratie.v2',
+        ],
+        'contributie' => [
+            'required_capability' => 'financieel',
+            'sidebar_policy' => 'contributie.v1',
         ],
     ];
 
@@ -29,6 +33,11 @@ class RondoApiClient
             'instance' => rtrim(config('app.url'), '/'),
         ]);
         if (!isset($response['version']) || (int) $response['version'] !== 1
+            || !isset($response['sidebar']) || !is_array($response['sidebar'])
+            || !isset($response['sidebar']['enabled']) || !is_bool($response['sidebar']['enabled'])
+            || !isset($response['sidebar']['key'], $response['sidebar']['sidebar_policy'])
+            || !hash_equals('basis', (string) $response['sidebar']['key'])
+            || !hash_equals('basis.v1', (string) $response['sidebar']['sidebar_policy'])
             || !isset($response['mappings']) || !is_array($response['mappings'])
         ) {
             throw new \RuntimeException('configuration_response_invalid');
