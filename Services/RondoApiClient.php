@@ -38,6 +38,12 @@ class RondoApiClient
             || !isset($response['sidebar']['key'], $response['sidebar']['sidebar_policy'])
             || !hash_equals('basis', (string) $response['sidebar']['key'])
             || !hash_equals('basis.v1', (string) $response['sidebar']['sidebar_policy'])
+            || !isset($response['audit']) || !is_array($response['audit'])
+            || !isset($response['audit']['retention_days'], $response['audit']['source'])
+            || !is_int($response['audit']['retention_days'])
+            || $response['audit']['retention_days'] < 90
+            || $response['audit']['retention_days'] > 730
+            || !in_array($response['audit']['source'], ['environment', 'rondo_setting', 'default'], true)
             || !isset($response['mappings']) || !is_array($response['mappings'])
         ) {
             throw new \RuntimeException('configuration_response_invalid');

@@ -76,8 +76,8 @@ class SettingsController extends Controller
             if (!in_array('S256', isset($metadata['code_challenge_methods_supported']) ? $metadata['code_challenge_methods_supported'] : [], true)) {
                 throw new \RuntimeException('PKCE S256 is not advertised.');
             }
-            $rondo->configuration();
-            $settings->markVerified();
+            $configuration = $rondo->configuration();
+            $settings->markVerified($configuration);
             \Session::flash('flash_success_floating', __('Rondo OpenID Connect and signed integration configuration verified.'));
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['connection' => __('Rondo connection verification failed.')]);

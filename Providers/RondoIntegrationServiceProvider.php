@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Modules\RondoIntegration\Console\DeliverActivitiesCommand;
 use Modules\RondoIntegration\Console\IntegrationUpdateCommand;
+use Modules\RondoIntegration\Console\PruneProvisioningEventsCommand;
 use Modules\RondoIntegration\Console\ReconcileAccessCommand;
 use Modules\RondoIntegration\Console\ReconcileConversationCustomerCommand;
 use Modules\RondoIntegration\Services\ActivityDeliveryPolicy;
@@ -24,6 +25,9 @@ use Modules\RondoIntegration\Services\HmacSigner;
 use Modules\RondoIntegration\Services\MailboxAccessService;
 use Modules\RondoIntegration\Services\MappingImpactService;
 use Modules\RondoIntegration\Services\OidcClient;
+use Modules\RondoIntegration\Services\InboundHmacVerifier;
+use Modules\RondoIntegration\Services\ProvisioningEventPayload;
+use Modules\RondoIntegration\Services\ProvisioningEventService;
 use Modules\RondoIntegration\Services\RondoApiClient;
 use Modules\RondoIntegration\Services\SettingsService;
 use Modules\RondoIntegration\Services\SidebarDocument;
@@ -42,6 +46,9 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(OidcClient::class);
         $this->app->singleton(RondoApiClient::class);
         $this->app->singleton(MailboxAccessService::class);
+        $this->app->singleton(InboundHmacVerifier::class);
+        $this->app->singleton(ProvisioningEventPayload::class);
+        $this->app->singleton(ProvisioningEventService::class);
         $this->app->singleton(AccessReconciler::class);
         $this->app->singleton(MappingImpactService::class);
         $this->app->singleton(BindingService::class);
@@ -58,6 +65,7 @@ class RondoIntegrationServiceProvider extends ServiceProvider
             ReconcileAccessCommand::class,
             ReconcileConversationCustomerCommand::class,
             DeliverActivitiesCommand::class,
+            PruneProvisioningEventsCommand::class,
         ]);
     }
 
@@ -199,6 +207,7 @@ class RondoIntegrationServiceProvider extends ServiceProvider
         \Eventy::addFilter('schedule', function ($schedule) {
             $schedule->command('rondo:reconcile-access')->hourly()->withoutOverlapping();
             $schedule->command('rondo:deliver-activities')->everyMinute()->withoutOverlapping();
+            $schedule->command('rondo:prune-provisioning-events')->daily()->withoutOverlapping();
             return $schedule;
         });
     }

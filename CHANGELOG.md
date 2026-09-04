@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [1.13.0] - 2026-09-04
+
+### Added
+
+- Receive signed Rondo capability-change events and immediately reconcile only module-managed mailbox access for the bound FreeScout user.
+- Keep durable UUID idempotency records and prune completed records daily according to Rondo's verified retention policy.
+
+### Security
+
+- Reject stale, replayed, oversized, malformed or incorrectly signed provisioning requests before processing, without accepting capability or mailbox data in the event.
+
 ## [1.12.0] - 2026-09-03
 
 ### Changed

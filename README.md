@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.12.0
+export RONDO_MODULE_VERSION=v1.13.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -36,8 +36,8 @@ Select the active mailboxes in which the sidebar should appear, then verify OIDC
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.12.0 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.12.0 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.13.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.13.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
@@ -62,6 +62,12 @@ An existing conversation can be previewed and repaired individually. The command
 php artisan rondo:reconcile-conversation-customer 123
 php artisan rondo:reconcile-conversation-customer 123 --apply
 ```
+
+## Realtime mailbox access
+
+When realtime provisioning is enabled in Rondo, a role or capability change queues an opaque signed event. The event contains only a UUID, issuer and OIDC subject. FreeScout verifies the exact request, suppresses replays, loads the current desired access from Rondo and reconciles only module-managed mailbox relationships. The hourly `rondo:reconcile-access` task remains the repair path if event delivery is interrupted.
+
+Processed UUID records are retained for the signed Rondo audit-retention period and pruned in bounded daily batches. Failed records remain available for retry and diagnosis. FreeScout has no separate retention override.
 
 ## Configuration precedence
 
