@@ -9,7 +9,7 @@ class ModuleContractTest extends TestCase
         $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/module.json'), true);
         $this->assertSame('rondointegration', $manifest['alias']);
         $this->assertSame('/modules/rondointegration/img/rondo-integration.png', $manifest['img']);
-        $this->assertSame('1.12.0', $manifest['version']);
+        $this->assertSame('1.13.0', $manifest['version']);
         $this->assertSame('1.8.238', $manifest['requiredAppVersion']);
         $this->assertSame('AGPL-3.0-only', $manifest['license']);
         $this->assertSame('https://github.com/RondoHQ/freescout-rondo-integration/releases/latest/download/module.json', $manifest['latestVersionUrl']);
@@ -211,6 +211,27 @@ class ModuleContractTest extends TestCase
         $this->assertStringNotContainsString('->body', $delivery);
         $this->assertStringContainsString("'/wp-json/rondo/v1/integrations/freescout/activity'", file_get_contents(dirname(__DIR__) . '/Services/RondoApiClient.php'));
         $this->assertStringNotContainsString('customer_email', strtolower($migration));
+    }
+
+    public function testRealtimeProvisioningReceiverIsSignedIdempotentAndRetained()
+    {
+        $routes = file_get_contents(dirname(__DIR__) . '/Http/routes.php');
+        $provider = file_get_contents(dirname(__DIR__) . '/Providers/RondoIntegrationServiceProvider.php');
+        $controller = file_get_contents(dirname(__DIR__) . '/Http/Controllers/ProvisioningEventsController.php');
+        $service = file_get_contents(dirname(__DIR__) . '/Services/ProvisioningEventService.php');
+        $migration = file_get_contents(dirname(__DIR__) . '/Database/Migrations/2026_09_03_000004_create_rondo_provisioning_events_table.php');
+        $client = file_get_contents(dirname(__DIR__) . '/Services/RondoApiClient.php');
+
+        $this->assertStringContainsString("'/rondo/integration/events/access'", $routes);
+        $this->assertStringContainsString('InboundHmacVerifier', $controller);
+        $this->assertStringContainsString("Cache::add('rondointegration.event_nonce.'", $controller);
+        $this->assertStringContainsString("->where('event_id', \$eventId)", $service);
+        $this->assertStringContainsString("->where('state', 'processed')", $service);
+        $this->assertStringContainsString("\$table->uuid('event_id')->unique()", $migration);
+        $this->assertStringContainsString("rondo:prune-provisioning-events')->daily()->withoutOverlapping()", $provider);
+        $this->assertStringContainsString("\$response['audit']['retention_days'] < 90", $client);
+        $this->assertStringNotContainsString('email', strtolower($migration));
+        $this->assertStringNotContainsString('capability', strtolower($migration));
     }
 
     public function testRuntimeContainsNoClubSpecificHostname()

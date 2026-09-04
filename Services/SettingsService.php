@@ -68,13 +68,23 @@ class SettingsService
         return $current;
     }
 
-    public function markVerified()
+    public function markVerified(array $configuration = [])
     {
         $settings = $this->all();
         $settings['verified_base_url'] = $this->baseUrl();
         $settings['verification_fingerprint'] = $this->verificationFingerprint();
         $settings['connection_verified_at'] = gmdate('Y-m-d H:i:s');
+        if (isset($configuration['audit']['retention_days'], $configuration['audit']['source'])) {
+            $settings['audit_retention_days'] = (int) $configuration['audit']['retention_days'];
+            $settings['audit_retention_source'] = (string) $configuration['audit']['source'];
+        }
         Option::set(self::OPTION, $settings);
+    }
+
+    public function auditRetentionDays()
+    {
+        $days = (int) $this->get('audit_retention_days', 0);
+        return $this->isVerified() && $days >= 90 && $days <= 730 ? $days : null;
     }
 
     public function isVerified()

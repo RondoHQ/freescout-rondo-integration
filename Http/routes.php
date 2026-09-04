@@ -1,6 +1,14 @@
 <?php
 
 Route::group([
+    'prefix' => \Helper::getSubdirectory(),
+    'namespace' => 'Modules\\RondoIntegration\\Http\\Controllers',
+], function () {
+    Route::post('/rondo/integration/events/access', 'ProvisioningEventsController@access')
+        ->name('rondointegration.events.access');
+});
+
+Route::group([
     'middleware' => 'web',
     'prefix' => \Helper::getSubdirectory(),
     'namespace' => 'Modules\\RondoIntegration\\Http\\Controllers',
