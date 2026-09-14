@@ -80,6 +80,7 @@ class RondoApiClient
         if (!isset($response['subject']) || !hash_equals($subject, (string) $response['subject'])
             || !isset($response['active']) || !is_bool($response['active'])
             || !isset($response['managed_mailboxes']) || !is_array($response['managed_mailboxes'])
+            || (array_key_exists('sidebar_access', $response) && !is_bool($response['sidebar_access']))
         ) {
             throw new \RuntimeException('access_response_invalid');
         }
@@ -93,6 +94,7 @@ class RondoApiClient
             }
         }
         $response['managed_mailboxes'] = $keys;
+        $response['sidebar_access'] = isset($response['sidebar_access']) && $response['sidebar_access'];
         return $response;
     }
 

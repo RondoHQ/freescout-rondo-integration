@@ -10,6 +10,14 @@ All notable changes to this project are documented here.
 ### Changed
 - Keep unresolved activities in the delivery queue and make them due after a person is selected. Customer changes and replays preserve historical Rondo activities.
 
+## [1.14.0] - 2026-09-14
+
+### Added
+- Allow basic-sidebar identities to link an existing active FreeScout account with existing active mailbox access or administrator status.
+
+### Security
+- Basic access never creates accounts, reactivates disabled users, or grants managed mailboxes. Existing identity binding, email verification, and managed-access reconciliation remain in place.
+
 ## [1.13.0] - 2026-09-04
 
 ### Added
