@@ -5,7 +5,7 @@ namespace Modules\RondoIntegration\Services;
 class ActivityDeliveryPolicy
 {
     const COMPLETE_STATUSES = ['created', 'confirmed', 'moved', 'restored'];
-    const RETRY_STATUSES = ['no_match', 'ambiguous'];
+    const RETRY_STATUSES = ['no_match', 'ambiguous', 'needs_link'];
 
     public function outcome(array $response, $conversationId)
     {

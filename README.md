@@ -48,7 +48,13 @@ Administrators can match an unexpected failed-login reference under **Manage →
 
 The module queues conversation creation, incoming reply, sent reply and customer-change events only for active mapped mailboxes. FreeScout's scheduler delivers at most 25 due events per minute. Each published reply becomes a separate idempotent pointer keyed by its FreeScout thread ID; sent replies can be attributed through the agent's existing Rondo subject binding. For mailbox-domain senders, only eligible `To` addresses are sent for exact person matching. No message body, attachment or agent email is sent to Rondo.
 
-Successful pointers are removed from the queue; `no_match`, `ambiguous` and temporary failures retry after 1, 5, 15 and then 60 minutes. Each attempt reloads the current conversation, customer and normalized email set, so no customer email is stored in the queue or delivery logs. A customer reassignment moves, hides or restores every pointer for that conversation together.
+Successful pointers are removed from the queue; `needs_link`, `no_match`, `ambiguous` and temporary failures retry after 1, 5, 15 and then 60 minutes. Each attempt reloads the current conversation, customer and normalized email set, so no customer email is stored in the queue or delivery logs. A customer reassignment preserves existing pointers and requires a fresh person choice for new activities.
+
+In mapped mailboxes, **Activiteiten koppelen aan…** saves an explicit choice for this conversation.
+The server checks the current customer, email context, mailbox access and Rondo visibility. Shared
+addresses remain queued with `needs_link`, without adding WordPress moderation comments. Saving
+makes waiting retries due immediately for the normal bounded scheduler. The existing iframe profile
+selector only changes the profile being viewed. Delivery retries never rewrite historical pointers.
 
 For a controlled manual run:
 

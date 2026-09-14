@@ -11,7 +11,7 @@ class ActivityDeliveryPolicyTest extends TestCase
         foreach (['created', 'confirmed', 'moved', 'restored'] as $status) {
             $this->assertSame('complete', $policy->outcome(['status' => $status, 'conversation_id' => 42], 42));
         }
-        foreach (['no_match', 'ambiguous'] as $status) {
+        foreach (['no_match', 'ambiguous', 'needs_link'] as $status) {
             $this->assertSame('retry', $policy->outcome(['status' => $status, 'conversation_id' => 42], 42));
         }
     }

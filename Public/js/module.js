@@ -1,7 +1,30 @@
 (function ($) {
     'use strict';
 
+    function renderActivityLink($root, link) {
+        var $box = $root.find('.rondo-activity-link');
+        var $select = $box.find('.rondo-activity-person');
+        var $button = $box.find('.rondo-activity-save');
+        $box.addClass('hide').removeData('link');
+        $select.empty();
+        if (!link || !Array.isArray(link.candidates)) {
+            return;
+        }
+        $box.data('link', link).removeClass('hide');
+        $select.append($('<option>').val('').text('Kies een persoon'));
+        link.candidates.forEach(function (candidate) {
+            $select.append($('<option>').val(String(candidate.id)).text(candidate.name));
+        });
+        $select.val(link.person_id ? String(link.person_id) : '').prop('disabled', !link.candidates.length);
+        $button.prop('disabled', true);
+        $box.find('.rondo-activity-help').text(link.status === 'linked'
+            ? 'Nieuwe activiteiten worden aan deze persoon gekoppeld. Eerdere activiteiten blijven staan.'
+            : (link.candidates.length ? 'Koppeling nodig. Nieuwe activiteiten wachten op je keuze; eerdere activiteiten blijven staan.'
+                : 'Geen passend profiel beschikbaar. Controleer de contactgegevens en vernieuw de zijbalk.'));
+    }
+
     function loadSidebar($root) {
+        renderActivityLink($root, null);
         var endpoint = $root.data('endpoint');
         var conversationId = parseInt($root.data('conversation-id'), 10);
         var $status = $root.find('.rondo-sidebar-status');
@@ -28,6 +51,7 @@
                 $status.text('Rondo information could not be displayed.');
                 return;
             }
+            renderActivityLink($root, response.activity_link);
             frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
             $frame.data('channel', response.channel).css('height', '160px').removeClass('hide');
             $frame.one('load.rondoSidebar', function () {
@@ -58,6 +82,49 @@
         });
     }
 
+    $(document).on('change', '.rondo-activity-person', function () {
+        var $box = $(this).closest('.rondo-activity-link');
+        var link = $box.data('link');
+        $box.find('.rondo-activity-save').prop('disabled', !this.value || (link && String(link.person_id) === this.value));
+    });
+
+    $(document).on('click', '.rondo-activity-save', function () {
+        var $button = $(this);
+        var $root = $button.closest('[data-rondo-sidebar]');
+        var $box = $button.closest('.rondo-activity-link');
+        var $select = $box.find('.rondo-activity-person');
+        var link = $box.data('link');
+        if (!link || !$select.val() || $button.prop('disabled')) {
+            return;
+        }
+        $button.prop('disabled', true).text('Opslaan…');
+        $select.prop('disabled', true);
+        $root.find('.rondo-sidebar-refresh').attr('aria-disabled', 'true');
+        $.ajax({
+            url: $root.data('link-endpoint'), method: 'POST', dataType: 'json',
+            data: {
+                conversation_id: parseInt($root.data('conversation-id'), 10),
+                customer_id: link.customer_id, person_id: parseInt($select.val(), 10), context: link.context,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            }
+        }).done(function (response) {
+            if (!response || response.status !== 'saved') {
+                $box.find('.rondo-activity-help').text('Opslaan is niet gelukt. Vernieuw de zijbalk en probeer opnieuw.');
+                return;
+            }
+            renderActivityLink($root, response.activity_link);
+            $box.find('.rondo-activity-help').text('Keuze opgeslagen. Wachtende activiteiten worden verwerkt; eerdere activiteiten blijven staan.');
+        }).fail(function (xhr) {
+            $box.find('.rondo-activity-help').text(xhr.responseJSON && xhr.responseJSON.message
+                ? xhr.responseJSON.message : 'Opslaan is niet gelukt. Vernieuw de zijbalk en probeer opnieuw.');
+            $button.prop('disabled', false);
+        }).always(function () {
+            $button.text('Keuze opslaan');
+            $select.prop('disabled', false);
+            $root.find('.rondo-sidebar-refresh').removeAttr('aria-disabled');
+        });
+    });
+
     window.addEventListener('message', function (event) {
         $('.rondo-sidebar-frame').each(function () {
             var frame = this;
@@ -76,6 +143,7 @@
 
     $(document).on('click', '.rondo-sidebar-refresh', function (event) {
         event.preventDefault();
+        if ($(this).attr('aria-disabled') === 'true') { return; }
         loadSidebar($(this).closest('[data-rondo-sidebar]'));
     });
 
