@@ -111,6 +111,11 @@ class RondoApiClient
         ]);
     }
 
+    public function activityLink(array $payload)
+    {
+        return $this->signedJson('/wp-json/rondo/v1/integrations/freescout/activity_link', $payload);
+    }
+
     public function activity(array $payload)
     {
         return $this->signedJson('/wp-json/rondo/v1/integrations/freescout/activity', $payload);

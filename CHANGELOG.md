@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## [1.15.0] - 2026-09-14
+
+### Added
+- Let authorized agents explicitly choose the person for new conversation activities, with current-customer checks, accessible candidate validation, clear waiting states and retryable save errors.
+
+### Changed
+- Keep unresolved activities in the delivery queue and make them due after a person is selected. Customer changes and replays preserve historical Rondo activities.
+
 ## [1.14.0] - 2026-09-14
 
 ### Added

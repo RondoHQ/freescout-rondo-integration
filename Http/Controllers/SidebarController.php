@@ -18,7 +18,12 @@ class SidebarController extends Controller
 {
     public function load(Request $request, BindingService $bindings, RondoApiClient $rondo, SidebarDocument $document, CustomerEmailService $emails, SettingsService $settings, SportlinkRelationCodeExtractor $relationCodes)
     {
-        $request->validate(['conversation_id' => 'required|integer|min:1']);
+        $saving = $request->route()->getName() === 'rondointegration.sidebar.link';
+        $rules = ['conversation_id' => 'required|integer|min:1'];
+        if ($saving) {
+            $rules += ['person_id' => 'required|integer|min:1', 'customer_id' => 'required|integer|min:1', 'context' => 'required|string|size:64'];
+        }
+        $request->validate($rules);
         $conversation = Conversation::with(['customer.emails', 'mailbox'])->findOrFail((int) $request->conversation_id);
         $agent = auth()->user();
         if (!$agent || !$agent->can('view', $conversation)) {
@@ -43,6 +48,7 @@ class SidebarController extends Controller
             ->first();
         $payload = [
             'version' => 1,
+            'instance' => rtrim((string) config('app.url'), '/'),
             'mailboxKey' => $mapping ? $mapping->stable_key : 'basis',
             'conversationId' => (int) $conversation->id,
             'conversationNumber' => (int) $conversation->number,
@@ -76,13 +82,30 @@ class SidebarController extends Controller
             }
         }
         try {
+            if ($saving) {
+                if (!$mapping || (int) $request->customer_id !== (int) $conversation->customer_id) {
+                    return response()->json(['message' => 'De gesprekspartner is gewijzigd. Vernieuw de zijbalk en kies opnieuw.'], 409);
+                }
+                $payload['activityPersonId'] = (int) $request->person_id;
+                $payload['activityContext'] = (string) $request->context;
+                $saved = $rondo->activityLink($payload);
+                if (($saved['status'] ?? '') !== 'saved') {
+                    throw new \RuntimeException('activity_link_failed');
+                }
+                DB::table('rondo_activity_delivery_queue')
+                    ->where('conversation_id', $conversation->id)
+                    ->where('state', 'retry')
+                    ->whereIn('last_error_code', ['needs_link', 'ambiguous', 'no_match'])
+                    ->update(['next_attempt_at' => gmdate('Y-m-d H:i:s')]);
+                return response()->json($saved);
+            }
             $response = $rondo->sidebar($payload);
             if (empty($response['html']) || !is_string($response['html'])) {
                 throw new \RuntimeException('sidebar_response_invalid');
             }
-            return response()->json(array_merge(['status' => isset($response['status']) ? $response['status'] : 'ok'], $document->render($response['html'])));
+            return response()->json(array_merge(['status' => isset($response['status']) ? $response['status'] : 'ok', 'activity_link' => $response['activity_link'] ?? null], $document->render($response['html'])));
         } catch (\Exception $e) {
-            return response()->json(['status' => 'unavailable', 'message' => 'Rondo is temporarily unavailable.'], 503);
+            return response()->json(['status' => 'unavailable', 'message' => $saving ? 'Opslaan is niet gelukt. Vernieuw de zijbalk en probeer opnieuw.' : 'Rondo is temporarily unavailable.'], 503);
         }
     }
 }

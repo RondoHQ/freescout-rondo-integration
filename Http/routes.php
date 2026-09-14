@@ -26,6 +26,8 @@ Route::group([
     'prefix' => \Helper::getSubdirectory(),
     'namespace' => 'Modules\\RondoIntegration\\Http\\Controllers',
 ], function () {
+    Route::post('/rondo/integration/sidebar/link', 'SidebarController@load')
+        ->name('rondointegration.sidebar.link');
     Route::post('/rondo/integration/sidebar', 'SidebarController@load')
         ->name('rondointegration.sidebar.load');
 });

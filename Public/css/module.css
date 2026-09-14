@@ -72,3 +72,8 @@
         width: clamp(280px, 25vw, var(--rondo-sidebar-max-width));
     }
 }
+
+.rondo-activity-link{margin:0 12px 14px;padding-bottom:14px;border-bottom:1px solid #d8e0e6}
+.rondo-activity-link label{display:block;margin-bottom:6px}
+.rondo-activity-link .form-control{width:100%;min-height:36px}
+.rondo-activity-help{margin:8px 0;color:#536878;overflow-wrap:break-word}
