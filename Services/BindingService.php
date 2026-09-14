@@ -19,13 +19,13 @@ class BindingService
 
     public function resolve(array $identity, array $access, $recoveryToken = null)
     {
-        if (!$access['active'] || empty($access['managed_mailboxes'])) {
+        if (empty($access['active']) && empty($access['sidebar_access'])) {
             throw new \RuntimeException('identity_ineligible');
         }
         $fingerprint = $this->fingerprint($identity['issuer'], $identity['subject']);
-        $candidateIds = $this->mailboxes->mappedIds($access['managed_mailboxes']);
+        $this->mailboxes->mappedIds($access['managed_mailboxes']);
 
-        return DB::transaction(function () use ($identity, $fingerprint, $candidateIds, $access, $recoveryToken) {
+        return DB::transaction(function () use ($identity, $fingerprint, $access, $recoveryToken) {
             $binding = DB::table('rondo_oidc_bindings')->where('identity_fingerprint', $fingerprint)->lockForUpdate()->first();
             if ($binding) {
                 if (!hash_equals($binding->issuer, $identity['issuer']) || !hash_equals($binding->subject, $identity['subject'])) {
@@ -38,6 +38,7 @@ class BindingService
                 if (!$user || $user->isDeleted()) {
                     throw new \RuntimeException('user_unavailable');
                 }
+                $this->requireExistingBasicAccess($user, $access);
                 $this->mailboxes->reconcile($user, $access['managed_mailboxes'], true);
                 return $user;
             }
@@ -61,8 +62,9 @@ class BindingService
                 if ($alreadyBound || $user->isDeleted()) {
                     throw new \RuntimeException('user_already_bound');
                 }
+                $this->requireExistingBasicAccess($user, $access);
             } else {
-                if (!$this->settings->automaticCreationEnabled() || !$this->creationPrerequisitesMet()) {
+                if (empty($access['managed_mailboxes']) || !$this->settings->automaticCreationEnabled() || !$this->creationPrerequisitesMet()) {
                     throw new \RuntimeException('account_creation_disabled');
                 }
                 $user = $this->createOrdinaryUser($identity);
@@ -90,6 +92,25 @@ class BindingService
     public function activeForUser($userId)
     {
         return DB::table('rondo_oidc_bindings')->where('active_user_id', $userId)->where('status', 'active')->first();
+    }
+
+    private function requireExistingBasicAccess(User $user, array $access)
+    {
+        if (!empty($access['managed_mailboxes'])) {
+            return;
+        }
+        if (empty($access['sidebar_access']) || !$user->isActive()) {
+            throw new \RuntimeException('identity_ineligible');
+        }
+        if ($user->isAdmin()) {
+            return;
+        }
+        foreach ($user->mailboxes()->get() as $mailbox) {
+            if ($mailbox->isActive()) {
+                return;
+            }
+        }
+        throw new \RuntimeException('identity_ineligible');
     }
 
     public function disable(User $user, User $actor, $reason)
@@ -176,6 +197,7 @@ class BindingService
         if (!$user || $user->isDeleted()) {
             throw new \RuntimeException('recovery_user_invalid');
         }
+        $this->requireExistingBasicAccess($user, $access);
         $now = gmdate('Y-m-d H:i:s');
         DB::table('rondo_oidc_bindings')->where('id', $old->id)->update([
             'active_user_id' => null,

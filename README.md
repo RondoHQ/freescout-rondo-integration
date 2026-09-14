@@ -17,7 +17,7 @@ The module fails closed for Rondo data and managed access until the matching Ron
 Production installation uses an exact immutable release and approved SHA-256:
 
 ```sh
-export RONDO_MODULE_VERSION=v1.13.0
+export RONDO_MODULE_VERSION=v1.14.0
 export RONDO_MODULE_SHA256=<approved-64-character-sha256>
 export FREESCOUT_ROOT=/var/www/html
 ./provision/install-fixed-version.sh
@@ -29,15 +29,15 @@ After activation, open **Manage → Rondo Integration**. Configure the Rondo bas
 https://your-freescout.example/rondo/oidc/callback
 ```
 
-Select the active mailboxes in which the sidebar should appear, then verify OIDC discovery before enabling login. A valid bound Rondo sign-in is required for profile data. Financial information is shown only in the dedicated Ledenadministratie and Contributie policies and only to users with financial permission. Keep `/login?rondo_oauth=0` and a local administrator available as independent recovery paths.
+Select the active mailboxes in which the sidebar should appear, then verify OIDC discovery before enabling login. A valid bound Rondo sign-in is required for profile data. Users with basic Rondo access can bind an existing active FreeScout account with an active mailbox (or an administrator account), without Ledenadministratie or Contributie access. Basic access never creates an account, reactivates a disabled account, or grants mailbox access. Financial information is shown only in the dedicated Ledenadministratie and Contributie policies and only to users with financial permission. Keep `/login?rondo_oauth=0` and a local administrator available as independent recovery paths.
 
 ## Approved updates
 
 FreeScout can report stable updates from the module manifest, but production installation uses the checksum-gated wrapper:
 
 ```sh
-php artisan rondo:integration-update --release=v1.13.0 --sha256=<approved-sha256> --check
-php artisan rondo:integration-update --release=v1.13.0 --sha256=<same-sha256> --install
+php artisan rondo:integration-update --release=v1.14.0 --sha256=<approved-sha256> --check
+php artisan rondo:integration-update --release=v1.14.0 --sha256=<same-sha256> --install
 ```
 
 The install command backs up the database and module directory, installs only alias `rondointegration`, runs FreeScout's module migration/install path, verifies the running version and restores the backup on failure.
