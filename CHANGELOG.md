@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.15.1] - 2026-10-03
+
+### Fixed
+
+- Clarify the Rondo sign-in option with a Dutch label, account guidance and a separator aligned with the login fields. Keep the button text readable under club link colors, with a larger touch target and visible keyboard focus.
+
 ## [1.15.0] - 2026-09-14
 
 ### Added
