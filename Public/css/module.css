@@ -77,3 +77,62 @@
 .rondo-activity-link label{display:block;margin-bottom:6px}
 .rondo-activity-link .form-control{width:100%;min-height:36px}
 .rondo-activity-help{margin:8px 0;color:#536878;overflow-wrap:break-word}
+
+.rondo-login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 20px;
+    color: #52616b;
+}
+.rondo-login-divider::before,
+.rondo-login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #d6dde3;
+}
+.rondo-login .rondo-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: #0069aa;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: normal;
+    text-decoration: none;
+}
+.rondo-login .rondo-login-button:visited {
+    color: #fff;
+}
+.rondo-login .rondo-login-button:hover,
+.rondo-login .rondo-login-button:focus {
+    background: #005487;
+    color: #fff;
+    text-decoration: none;
+}
+.rondo-login .rondo-login-button:focus {
+    outline: 2px solid #005487;
+    outline-offset: 3px;
+}
+.rondo-login .rondo-login-button:active {
+    background: #00436d;
+}
+.rondo-login-icon {
+    flex-shrink: 0;
+}
+.rondo-login-help {
+    margin: 10px 0 0;
+    color: #52616b;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+}
